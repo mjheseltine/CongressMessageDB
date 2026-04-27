@@ -17,6 +17,55 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* Citation Box */
+
+.citation-box {
+  background: #f2f6fb;
+  border-left: 5px solid #2c5aa0;
+  padding: 15px;
+  margin-bottom: 25px;
+  border-radius: 6px;
+}
+
+.citation-box p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Tabs */
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.tab-button {
+  padding: 12px 20px;
+  border: none;
+  background: #e5e5e5;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.tab-button.active {
+  background: #2c5aa0;
+  color: white;
+}
+
+/* Tab Content */
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Filters */
+
 .filters {
   display: flex;
   gap: 10px;
@@ -24,7 +73,8 @@ h1 {
   margin-bottom: 20px;
 }
 
-select, button {
+select,
+button {
   padding: 10px;
   font-size: 14px;
 }
@@ -33,6 +83,8 @@ select, button {
   margin: 20px 0;
   font-weight: bold;
 }
+
+/* Table */
 
 #previewTable {
   width: 100%;
@@ -46,6 +98,8 @@ select, button {
   padding: 8px;
   text-align: left;
 }
+
+/* Chart */
 
 canvas {
   margin-top: 30px;
