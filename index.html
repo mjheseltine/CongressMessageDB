@@ -2,49 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Congressional Speech Portal</title>
 
-  <link rel="stylesheet" href="styles/styles.css" />
+  <link rel="stylesheet" href="styles/styles.css">
 
-  <!-- Papa Parse for CSV loading -->
+  <!-- Papa Parse -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-  <!-- Chart.js for visualization -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
   <div class="container">
+
     <h1>Congressional Speech Portal</h1>
 
-    <div class="filters">
-      <select id="partyFilter">
-        <option value="">All Parties</option>
-      </select>
-
-      <select id="chamberFilter">
-        <option value="">All Chambers</option>
-      </select>
-
-      <select id="yearFilter">
-        <option value="">All Years</option>
-      </select>
-
-      <select id="policyFilter">
-        <option value="">All Policy Claiming</option>
-      </select>
-
-      <button id="downloadBtn">Download Filtered CSV</button>
+    <!-- Citation Notice -->
+    <div class="citation-box">
+      <p>
+        This data is from XXXXX, published in APSR in 2026.
+        If using this data, please cite XXXXX.
+      </p>
     </div>
 
-    <div id="summary"></div>
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-button active" onclick="showTab('exploreTab')">
+        Explore Data
+      </button>
 
-    <canvas id="resultsChart"></canvas>
+      <button class="tab-button" onclick="showTab('researchTab')">
+        Research
+      </button>
+    </div>
 
-    <table id="previewTable"></table>
+    <!-- EXPLORE TAB -->
+    <div id="exploreTab" class="tab-content active">
+
+      <div class="filters">
+        <select id="partyFilter">
+          <option value="">All Parties</option>
+        </select>
+
+        <select id="chamberFilter">
+          <option value="">All Chambers</option>
+        </select>
+
+        <select id="yearFilter">
+          <option value="">All Years</option>
+        </select>
+
+        <select id="policyFilter">
+          <option value="">All Policy Claiming</option>
+        </select>
+
+        <button id="downloadBtn">
+          Download Filtered CSV
+        </button>
+      </div>
+
+      <div id="summary"></div>
+
+      <canvas id="resultsChart"></canvas>
+
+      <table id="previewTable"></table>
+
+    </div>
+
+    <!-- RESEARCH TAB -->
+    <div id="researchTab" class="tab-content">
+
+      <h2>Related Research</h2>
+
+      <p>
+        Here we show existing research which has made use
+        of the data in this portal....
+      </p>
+
+    </div>
+
   </div>
 
   <script src="scripts/main.js"></script>
+
 </body>
 </html>
