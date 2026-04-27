@@ -13,6 +13,31 @@ const summary = document.getElementById("summary");
 const previewTable = document.getElementById("previewTable");
 const downloadBtn = document.getElementById("downloadBtn");
 
+/* --------------------------
+   TAB SWITCHING
+-------------------------- */
+
+function showTab(tabId) {
+  const tabs = document.querySelectorAll(".tab-content");
+  const buttons = document.querySelectorAll(".tab-button");
+
+  tabs.forEach(tab => {
+    tab.classList.remove("active");
+  });
+
+  buttons.forEach(button => {
+    button.classList.remove("active");
+  });
+
+  document.getElementById(tabId).classList.add("active");
+
+  event.target.classList.add("active");
+}
+
+/* --------------------------
+   LOAD CSV
+-------------------------- */
+
 Papa.parse("data/data.csv", {
   download: true,
   header: true,
@@ -20,15 +45,17 @@ Papa.parse("data/data.csv", {
     console.log("CSV Loaded:");
     console.log(results.data);
 
-    // Removes empty rows if they exist
     fullData = results.data.filter(row => row.speaker);
-
     filteredData = [...fullData];
 
     populateFilters();
     updateView();
   }
 });
+
+/* --------------------------
+   FILTER HELPERS
+-------------------------- */
 
 function getUniqueValues(column) {
   return [
@@ -62,6 +89,10 @@ function populateFilters() {
   downloadBtn.addEventListener("click", downloadCSV);
 }
 
+/* --------------------------
+   APPLY FILTERS
+-------------------------- */
+
 function applyFilters() {
   filteredData = fullData.filter(row => {
     return (
@@ -75,12 +106,20 @@ function applyFilters() {
   updateView();
 }
 
+/* --------------------------
+   UPDATE VIEW
+-------------------------- */
+
 function updateView() {
   summary.textContent = `Matching rows: ${filteredData.length}`;
 
   renderTable();
   renderChart();
 }
+
+/* --------------------------
+   TABLE
+-------------------------- */
 
 function renderTable() {
   previewTable.innerHTML = "";
@@ -118,6 +157,10 @@ function renderTable() {
   });
 }
 
+/* --------------------------
+   CHART
+-------------------------- */
+
 function renderChart() {
   const counts = {};
 
@@ -154,12 +197,18 @@ function renderChart() {
   );
 }
 
+/* --------------------------
+   DOWNLOAD CSV
+-------------------------- */
+
 function downloadCSV() {
   const csv = Papa.unparse(filteredData);
 
   const blob = new Blob(
     [csv],
-    { type: "text/csv;charset=utf-8;" }
+    {
+      type: "text/csv;charset=utf-8;"
+    }
   );
 
   const url = URL.createObjectURL(blob);
