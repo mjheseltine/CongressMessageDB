@@ -8,14 +8,17 @@ or written; only the columns listed in COLS_KEEP below are carried through.
 
 Newsletters are released at two levels: one row per newsletter (a category is 1 if any
 sentence in the newsletter was labelled 1; partisan scores are the mean across sentences)
-and one row per sentence bigram. The website summary uses the newsletter level.
+and one row per sentence bigram. The summary and members tables use the sentence level for
+newsletters, as in the article, so category shares are comparable across platforms.
 
 Outputs
   <out>/data/twitter_<congress>.csv.gz / .parquet               one row per tweet
   <out>/data/facebook_<congress>.csv.gz / .parquet              one row per post
   <out>/data/newsletters_<congress>.csv.gz / .parquet           one row per newsletter
   <out>/data/newsletter_sentences_<congress>.csv.gz / .parquet  one row per sentence bigram
-  <out>/members.csv                         one row per (MemberICPSR, Congress)
+  <out>/members.csv                         one row per (MemberICPSR, Congress) with attributes plus message
+                                            counts, category proportions and mean partisanship, pooled
+                                            across platforms and with Twt / FB / NL suffixes per platform
   <site>/summary.csv                        one row per (Platform, Congress, MemberICPSR) with counts,
                                             category proportions and mean partisanship (drives the explorer)
   <site>/members.csv                        copy of members.csv for the site
@@ -50,7 +53,7 @@ MEMBER_COLS = ["MemberName", "MemberParty", "MemberChamber", "MemberState", "Mem
 ENGAGEMENT = {
     "twitter":     {"Likes": "likes", "Retweets": "shares", "Replies": "replies", "Quotes": "quotes"},
     "facebook":    {"Likes": "likes", "Shares": "shares", "Comments": "replies"},
-    "newsletters": {"Sentences": "sentences"},
+    "newsletters": {},
     "newsletter_sentences": {},
 }
 # Message-level columns kept in the public files (in this order, if present).
@@ -64,7 +67,17 @@ COLS_KEEP = {
 }
 PLATFORM_LABEL = {"twitter": "Twitter", "facebook": "Facebook", "newsletters": "Newsletters",
                   "newsletter_sentences": "Newsletter sentences"}
-SUMMARY_PLATFORMS = ["twitter", "facebook", "newsletters"]   # units: tweet, post, newsletter
+# Every column the script is allowed to read. Anything else in the internal files (message text,
+# URLs to media, etc.) is never loaded into memory.
+COLS_READ = set(c for cols in COLS_KEEP.values() for c in cols) | set(MEMBER_COLS)
+# (engagement key, frame key, label) for the summary table; newsletters use the sentence-level frame.
+SUMMARY_SOURCES = [("twitter", "twitter", "Twitter"), ("facebook", "facebook", "Facebook"),
+                   ("newsletters", "newsletter_sentences", "Newsletters")]
+# members.csv aggregate blocks: column suffix -> frame key ("" = pooled across the three)
+SUFFIX = {"Twt": "twitter", "FB": "facebook", "NL": "newsletter_sentences"}
+CAT_SHORT = {"NegativePartisan": "NegPartisan"}
+# Columns that identify a unique message; repeated values are collection duplicates and are dropped.
+ID_COLS = {"twitter": ["TweetID"], "facebook": ["PostURL"], "newsletter_sentences": ["NewsletterID", "BigramNumber"]}
 VOTEVIEW_PARTY = {100: "Democrat", 200: "Republican"}
 
 
@@ -74,11 +87,29 @@ def log(msg):
 
 def read_platform(path, platform):
     log(f"Reading {platform}: {path}")
-    dtypes = {c: "category" for c in MEMBER_COLS + ["Handle"]}
-    df = pd.read_csv(path, dtype=dtypes, low_memory=False)
+    header = list(pd.read_csv(path, nrows=0).columns)
+    wanted = [c for c in header if c in COLS_READ]
+    ignored = [c for c in header if c not in COLS_READ]
+    log(f"  reading {len(wanted)} of {len(header)} columns; ignoring: {ignored if ignored else 'none'}")
+    dtypes = {c: "category" for c in MEMBER_COLS + ["Handle"] if c in wanted}
+    df = pd.read_csv(path, usecols=wanted, dtype=dtypes, low_memory=False)
     missing = [c for c in ["Congress", "MemberICPSR", "Date"] + CATEGORIES + SCORES if c not in df.columns]
     if missing:
         raise SystemExit(f"{platform}: missing required columns {missing}")
+    key_missing = df["Congress"].isna() | df["MemberICPSR"].isna()
+    if key_missing.any():
+        n = int(key_missing.sum())
+        log(f"  dropping {n:,} rows ({n/len(df):.2%}) with no Congress or MemberICPSR "
+            f"(no Congress: {int(df['Congress'].isna().sum()):,}; no ICPSR: {int(df['MemberICPSR'].isna().sum()):,})")
+        if n / len(df) > 0.05:
+            log("  WARNING: more than 5% of rows dropped -- check the member merge before releasing")
+        df = df[~key_missing].copy()
+    ids = ID_COLS.get(platform)
+    if ids and all(c in df.columns for c in ids):
+        dup = df.duplicated(subset=ids)
+        if dup.any():
+            log(f"  dropping {int(dup.sum()):,} duplicate rows ({dup.mean():.2%}) with a repeated {' + '.join(ids)}")
+            df = df[~dup].copy()
     df["Congress"] = df["Congress"].astype("int16")
     df["MemberICPSR"] = df["MemberICPSR"].astype("int32")
     for c in CATEGORIES:
@@ -151,15 +182,46 @@ def build_members(frames, voteview_path=None):
         n_vv = (members["Source"] == "voteview").sum()
         log(f"  {n_vv:,} of {len(members):,} member-sessions matched Voteview")
 
-    members = members.sort_values(["Congress", "MemberICPSR"]).reset_index(drop=True)
-    return members[["MemberICPSR", "Congress"] + MEMBER_COLS + ["Source"]]
+    members = members[["MemberICPSR", "Congress"] + MEMBER_COLS + ["Source"]]
+    log("Computing member-session aggregates")
+    members = members.merge(member_aggregates(frames), on=["MemberICPSR", "Congress"], how="left")
+    return members.sort_values(["Congress", "MemberICPSR"]).reset_index(drop=True)
+
+
+def member_aggregates(frames):
+    """Per member-session: message counts, category counts/proportions and mean partisanship,
+    pooled across platforms (no suffix) and per platform (Twt / FB / NL). Newsletters count sentences."""
+    def block(df, suffix):
+        g = df.groupby(["MemberICPSR", "Congress"], observed=True)
+        n = g.size()
+        out = pd.DataFrame({"NumMessages": n,
+                            "PartisanScore": g["PartisanScore"].mean(),
+                            "PartisanExtremity": g["PartisanExtremity"].mean()})
+        if "NewsletterID" in df.columns:
+            out["NumNewsletters"] = g["NewsletterID"].nunique()
+        for c in CATEGORIES:
+            short = CAT_SHORT.get(c, c)
+            out["Num" + short] = g[c].sum().astype("int64")
+            out["Prop" + short] = out["Num" + short] / n
+        out.columns = [c + suffix for c in out.columns]
+        return out
+    base = ["MemberICPSR", "Congress", "PartisanScore", "PartisanExtremity"] + CATEGORIES
+    pooled = pd.concat([frames[k][base] for k in SUFFIX.values()], ignore_index=True)
+    blocks = [block(pooled, "")] + [block(frames[k], suf) for suf, k in SUFFIX.items()]
+    agg = pd.concat(blocks, axis=1).reset_index()
+    for c in agg.columns:
+        if c.startswith("Num"):
+            agg[c] = agg[c].astype("Int64")        # whole numbers, blank where a member has no messages on a platform
+        elif agg[c].dtype.kind == "f":
+            agg[c] = agg[c].round(4)
+    return agg
 
 
 def build_summary(frames, members):
     """One row per (Platform, Congress, MemberICPSR)."""
     out = []
-    for platform in SUMMARY_PLATFORMS:
-        df = frames[platform]
+    for eng_key, frame_key, label in SUMMARY_SOURCES:
+        df = frames[frame_key]
         g = df.groupby(["Congress", "MemberICPSR"], observed=True)
         s = pd.DataFrame({
             "n_messages": g.size(),
@@ -167,16 +229,18 @@ def build_summary(frames, members):
             "mean_partisan_score": g["PartisanScore"].mean(),
             "mean_partisan_extremity": g["PartisanExtremity"].mean(),
         })
+        if "NewsletterID" in df.columns:
+            s["n_newsletters"] = g["NewsletterID"].nunique()
         for c in CATEGORIES:
             s["p_" + c] = g[c].mean()
-        for src, dst in ENGAGEMENT[platform].items():
+        for src, dst in ENGAGEMENT[eng_key].items():
             if src in df.columns:
                 s["mean_" + dst] = g[src].mean()
         s = s.reset_index()
-        s.insert(0, "Platform", PLATFORM_LABEL[platform])
+        s.insert(0, "Platform", label)
         out.append(s)
     summary = pd.concat(out, ignore_index=True)
-    summary = summary.merge(members.drop(columns=["Source"]), on=["MemberICPSR", "Congress"], how="left")
+    summary = summary.merge(members[["MemberICPSR", "Congress"] + MEMBER_COLS], on=["MemberICPSR", "Congress"], how="left")
     front = ["Platform", "Congress", "MemberICPSR"] + MEMBER_COLS
     summary = summary[front + [c for c in summary.columns if c not in front]]
     # Round to keep the file small; the explorer re-weights by n_messages / n_scored.

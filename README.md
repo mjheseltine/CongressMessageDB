@@ -35,12 +35,18 @@ python prepare_data.py \
 ```
 
 The script loads each internal file fully into memory (pandas); the tweet file (~0.8 GB CSV)
-needs roughly 4–6 GB of RAM. It never touches message text: only the columns listed in
-`COLS_KEEP` are written out.
+needs roughly 4–6 GB of RAM. Message text is never read: the script only loads the columns
+listed in `COLS_READ` (identifiers, dates, engagement, labels, scores, member attributes), so
+the internal files with text can be used as-is.
 
 Newsletters come out at two levels: `newsletters_<congress>` (one row per newsletter; a category
 is 1 if any sentence carries it, scores are sentence means) and `newsletter_sentences_<congress>`
-(one row per sentence bigram, as classified). The explorer uses the newsletter level.
+(one row per sentence bigram, as classified). The explorer, `summary.csv` and `members.csv` use the
+sentence level for newsletters, as the article does, so category shares are comparable across platforms.
+
+`members.csv` carries each member-session's message counts, category proportions and mean partisan
+scores, pooled (no suffix) and per platform (`Twt`, `FB`, `NL` suffixes), so it works on its own as a
+member-level dataset.
 
 `--voteview` replaces party / chamber / state / district with Voteview's values keyed on
 (icpsr, congress) — https://voteview.com/data → "Member Ideology", all congresses, CSV — and

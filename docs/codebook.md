@@ -13,8 +13,8 @@ The public files contain **no message text**. Each row carries a platform identi
 | `facebook_<congress>.csv.gz` / `.parquet` | one Facebook post | 111th–117th Congress |
 | `newsletters_<congress>.csv.gz` / `.parquet` | one email newsletter | 111th–117th Congress; categories and scores rolled up from the sentence level (see below) |
 | `newsletter_sentences_<congress>.csv.gz` / `.parquet` | one sentence bigram from an email newsletter | the unit the classifiers and scaling model operated on; several rows per newsletter |
-| `members.csv` | one member × Congress | join key for the message files |
-| `summary.csv` | one member × Congress × platform | aggregates behind the website explorer |
+| `members.csv` | one member × Congress | member attributes plus message counts, category proportions and mean partisanship (pooled and per platform) — the simplest file for member-level analysis |
+| `summary.csv` | one member × Congress × platform | the same measures in long format, plus mean engagement; the table behind the website explorer |
 
 Congress numbers map to years as follows: 111 = 2009–10, 112 = 2011–12, 113 = 2013–14, 114 = 2015–16, 115 = 2017–18, 116 = 2019–20, 117 = 2021–22. Data for the 111th Congress do not cover the full session.
 
@@ -46,7 +46,7 @@ Congress numbers map to years as follows: 111 = 2009–10, 112 = 2011–12, 113 
 
 Categories are neither mutually exclusive nor exhaustive; roughly 28% of tweets, posts and newsletter sentences fall in none of the six main categories.
 
-**Newsletter roll-up.** Classification and scaling were performed on sentence bigrams. In the newsletter-level files, a category is 1 if *any* sentence in the newsletter was labelled 1, and `PartisanScore` / `PartisanExtremity` are the means across the newsletter's sentences. Because newsletters are long, newsletter-level category shares are much higher than tweet or post shares and are not directly comparable to them; use the sentence-level file for share-of-sentences measures as reported in the article.
+**Newsletter roll-up.** Classification and scaling were performed on sentence bigrams. In the newsletter-level files, a category is 1 if *any* sentence in the newsletter was labelled 1, and `PartisanScore` / `PartisanExtremity` are the means across the newsletter's sentences. Because newsletters are long, newsletter-level category shares are much higher than tweet or post shares and are not directly comparable to them. The member-level tables, the explorer and the article all use the sentence level for newsletters, so their newsletter figures are shares of sentences and means over sentences.
 
 Classifier labels come from BERTweet models trained on approximately 43,000 hand-coded messages. Out-of-sample macro F1 by category: 0.83–0.95 (Twitter), 0.81–0.92 (Facebook), 0.77–0.93 (newsletters). See Section G–H of the article's supplementary material.
 
@@ -63,18 +63,31 @@ Classifier labels come from BERTweet models trained on approximately 43,000 hand
 | `MemberDistrict` | House district number, or `S` for senators. |
 | `Source` | `voteview` if attributes were taken from Voteview for that member-session; `messages` if inferred from the internal files. |
 
+The remaining columns summarise that member-session's messages. Each appears four times: without a suffix (pooled across all three platforms) and with the suffixes `Twt` (tweets), `FB` (Facebook posts) and `NL` (newsletter sentences). Suffixed columns are blank where the member has no messages on that platform.
+
+| Variable | Description |
+|---|---|
+| `NumMessages` | Number of tweets, posts and/or newsletter sentences. |
+| `NumNewslettersNL` | Number of distinct newsletters (NL block only). |
+| `PartisanScore` | Mean Text Partisanship Score over scored messages. |
+| `PartisanExtremity` | Mean Text Partisan Extremity Score over scored messages. |
+| `NumAdvertising`, `NumCreditClaiming`, `NumPositionTaking`, `NumConstituentService`, `NumNegPartisan`, `NumBipartisan`, `NumCreditConstituent`, `NumCreditPolicy` | Number of messages labelled 1 for the category. |
+| `PropAdvertising`, …, `PropCreditPolicy` | The corresponding share of messages (`Num… / NumMessages`). |
+
+For example, `PropNegPartisanTwt` is the share of a member's tweets in that Congress containing a negative partisan attack, and `PartisanScore` (no suffix) is the mean partisan score across all of their tweets, posts and newsletter sentences.
+
 ## `summary.csv`
 
 One row per `Platform` × `Congress` × `MemberICPSR`, with the member attributes above plus:
 
 | Variable | Description |
 |---|---|
-| `n_messages` | Number of tweets, posts or newsletters. |
+| `n_messages` | Number of tweets, posts or newsletter sentences. |
+| `n_newsletters` | Number of distinct newsletters (Newsletters rows only). |
 | `n_scored` | Number of rows with a non-missing `PartisanScore`. |
 | `mean_partisan_score`, `mean_partisan_extremity` | Means over scored rows. |
 | `p_<Category>` | Share of rows labelled 1 for that category. |
 | `mean_likes`, `mean_shares`, `mean_replies`, `mean_quotes` | Mean engagement per message (social media only; `Retweets`→`shares`, `Comments`→`replies`). |
-| `mean_sentences` | Mean number of sentence-bigram units per newsletter (newsletters only). |
 
 To aggregate across rows, weight proportions by `n_messages` and scores by `n_scored`.
 

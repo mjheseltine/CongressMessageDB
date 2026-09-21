@@ -121,7 +121,7 @@
 <main class="wrap" id="top">
   <div class="masthead">
     <h1>Scaled and Classified Congressional Communication</h1>
-    <p class="authors">Michael Kistner, Michael Heseltine, Robert Alvarez, Maya Fitch, Lucas Lothamer and Elizabeth Simas · <em>American Political Science Review</em>, 2026</p>
+    <p class="authors">Michael Kistner, Michael Heseltine, Robert Alvarez, Maya Fitch, Lucas Lothamer and Elizabeth Simas</p>
     <p class="lede">A dataset of over 7 million tweets, Facebook posts, and email newsletters sent by members of Congress between 2009 and 2022, classified by purpose and placed on a left-right partisan scale.</p>
     <p class="demo-note" id="demo-note" hidden></p>
   </div>
@@ -129,16 +129,17 @@
   <section id="about">
     <h2>About the data</h2>
     <div class="prose">
-      <p>The dataset covers the 111th through 117th Congresses (2009–2022) and 1,034 senators and representatives. Tweets were collected from the Twitter API, Facebook posts through CrowdTangle, and email newsletters from Lindsey Cormack's <a href="https://www.dcinbox.com">DCinbox</a> archive. Because the platforms' terms of use do not permit redistribution of message text, the public files carry identifiers (tweet ID, post URL, newsletter ID) rather than text; researchers with API access can rehydrate messages from those identifiers. For more questions about data access, please email one of the authors.</p>
-      <p>Each message was coded into six categories drawn from Mayhew (1974), Fenno (1978) and Russell (2018): advertising, credit claiming, position taking, constituent service, negative partisanship and bipartisanship. Categories are not mutually exclusive. Labels come from BERTweet classifiers trained on roughly 43,000 hand-coded messages; out-of-sample macro F1 ranges from 0.77 to 0.95 depending on category and platform.</p>
+      <p>This website allows users to explore and download the data introduced in <a href="https://www.cambridge.org/core/journals/american-political-science-review/article/measuring-partisanship-and-representation-in-online-congressional-communications/58757BB2FA9B639545370CEDF2C9F246">"Measuring Partisanship and Representation in Online Congressional Communications"</a> (<em>American Political Science Review</em> 2026). The dataset covers the 111th through 117th Congresses (2009–2022) and contains messages sent by 958 Representatives and 120 Senators.</p>
+      <p>Each message was coded into six categories drawn from Mayhew (1974), Fenno (1978) and Russell (2018): advertising, credit claiming, position taking, constituent service, negative partisanship and bipartisanship. Categories are not mutually exclusive. Labels come from BERTweet classifiers trained on roughly 43,000 hand-coded messages.</p>
       <p>The partisan score places each message on a −1 (most Democratic) to +1 (most Republican) scale using a class affinity model fit separately for each Congress. Partisan extremity is the absolute value of that score. Validation against DW-NOMINATE, CF scores, presidential support scores and human coders is reported in the article and its supplementary material.</p>
-      <p>Contact: <a href="mailto:mkistner@tamu.edu">mkistner@tamu.edu</a> · <a href="mailto:michael.heseltine@sociology.ox.ac.uk">michael.heseltine@sociology.ox.ac.uk</a>. Code for this site and the release pipeline is on <a href="https://github.com/mjheseltine/CongressMessageDB">GitHub</a>.</p>
+      <p>Tweets were collected from the Twitter API, Facebook posts through CrowdTangle, and email newsletters from Lindsey Cormack's <a href="https://www.dcinbox.com">DCinbox</a> archive. Because the platforms' terms of use do not permit redistribution of message text, the public files carry identifiers (tweet ID, post URL, newsletter ID) rather than text; researchers with API access can rehydrate messages from those identifiers. For more questions about data access, please email one of the authors.</p>
+      <p>Contact: <a href="mailto:mkistner@tamu.edu">mkistner@tamu.edu</a> or <a href="mailto:michael.heseltine@sociology.ox.ac.uk">michael.heseltine@sociology.ox.ac.uk</a>. Code for this site and the release pipeline is on <a href="https://github.com/mjheseltine/CongressMessageDB">GitHub</a>.</p>
     </div>
   </section>
 
   <section id="explore">
     <h2>Explore</h2>
-    <p class="sub">Filter by platform, Congress, party, chamber, state or member. Results are message-weighted: proportions are the share of messages in each category and the partisan score is the mean across scored messages. A newsletter counts toward a category if any of its sentences was classified into it (the classifiers ran at the sentence level), and its partisan score is the mean across its sentences.</p>
+    <p class="sub">Filter by platform, Congress, party, chamber, state or member. Results are message-weighted: proportions are the share of messages in each category and the partisan score is the mean across scored messages. Newsletter figures are computed per sentence, the unit on which the classifiers and scaling model ran, so category shares are comparable across platforms.</p>
 
     <div class="filters">
       <label>Platform<select id="f-platform"><option value="">All platforms</option></select></label>
@@ -174,14 +175,18 @@
 
   <section id="download">
     <h2>Download</h2>
-    <p class="sub">Message-level files contain no message text. Each row is one tweet, one Facebook post or one newsletter, with its platform identifier, date, member ICPSR ID, Congress, engagement counts (social media only), the eight classifier labels and the two partisanship scores. Newsletters were classified sentence by sentence; the newsletter files mark a category if any sentence carries it, and a separate sentence-level file is provided for finer analysis. Join to <a href="members.csv">members.csv</a> on MemberICPSR and Congress for name, party, chamber, state and district.</p>
-    <div class="tablewrap"><table class="files" id="tbl-files"></table></div>
-    <h3>Member and summary tables</h3>
+    <p class="sub">Two member-level tables cover most uses. The message-level files below them contain every tweet, post and newsletter in the dataset, without the text.</p>
+
+    <h3>Member-level tables</h3>
     <dl>
-      <dt><a href="summary.csv">summary.csv</a></dt><dd>Member × Congress × platform aggregates — the table behind the explorer above.</dd>
-      <dt><a href="members.csv">members.csv</a></dt><dd>One row per member-session with name, party, chamber, state and district.</dd>
+      <dt><a href="members.csv">members.csv</a></dt><dd>One row per member and Congress: name, party, chamber, state and district, plus message counts, the share of messages in each category, and mean partisan score and extremity — pooled across platforms and separately for Twitter (Twt), Facebook (FB) and newsletters (NL). Start here for member-level measures.</dd>
+      <dt><a href="summary.csv">summary.csv</a></dt><dd>The same measures in long format, one row per member, Congress and platform, with mean engagement. This is the table behind the explorer above.</dd>
       <dt><a href="codebook.md">Codebook</a></dt><dd>Variable definitions, classifier and scaling details, known limitations.</dd>
     </dl>
+
+    <h3>Message-level files</h3>
+    <p class="sub">Each row is one tweet, one Facebook post, one newsletter or one newsletter sentence, with its platform identifier, date, member ICPSR ID, Congress, engagement counts (social media only), the eight classifier labels and the two partisanship scores. Newsletters were classified sentence by sentence: the newsletter files mark a category if any sentence carries it, while the sentence files, which the member-level tables and the explorer are built from, give the per-sentence labels. Join any file to members.csv on MemberICPSR and Congress.</p>
+    <div class="tablewrap"><table class="files" id="tbl-files"></table></div>
   </section>
 
   <section id="cite">
@@ -198,6 +203,19 @@
   year    = {2026},
   pages   = {1--18},
   doi     = {10.1017/S0003055426101841}
+}</pre>
+    <div class="prose">
+      <p>If you use the newsletter data, please also cite the DCinbox archive:</p>
+      <p>Cormack, Lindsey. 2017. "DCinbox—Capturing Every Congressional Constituent E-Newsletter from 2009 Onwards." <em>The Legislative Scholar</em> 2 (1): 27–34.</p>
+    </div>
+<pre>@article{cormack2017dcinbox,
+  title={DCinbox—Capturing every congressional constituent e-newsletter from 2009 onwards},
+  author={Cormack, Lindsey},
+  journal={The Legislative Scholar},
+  volume={2},
+  number={1},
+  pages={27--34},
+  year={2017}
 }</pre>
   </section>
 
@@ -320,7 +338,8 @@ function renderSpectrum(rows, all){
   </svg>`;
 }
 function renderKPIs(a){
-  $("kpis").innerHTML=[[fmtN(a.n),"messages"],[fmtN(a.members.size),"members"],[fmtS(a.score),"mean partisan score"],[isFinite(a.ext)?a.ext.toFixed(2):"—","mean extremity"]]
+  const unit={Twitter:"tweets",Facebook:"Facebook posts",Newsletters:"newsletter sentences"}[$("f-platform").value]||"tweets, posts and newsletter sentences";
+  $("kpis").innerHTML=[[fmtN(a.n),unit],[fmtN(a.members.size),"members"],[fmtS(a.score),"mean partisan score"],[isFinite(a.ext)?a.ext.toFixed(2):"—","mean extremity"]]
     .map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("");
 }
 function renderBars(rows){
@@ -381,7 +400,7 @@ function renderFiles(){
   try{
     const s=await loadText("summary-data","summary.csv"); DATA=parseCSV(s.text);
     const m=await loadText("manifest-data","manifest.json"); MANIFEST=JSON.parse(m.text);
-    if(s.demo){ const t=["Twitter","Facebook","Newsletters"].reduce((a,p)=>a+(MANIFEST.totals[p]||0),0);
+    if(s.demo){ const t=["Twitter","Facebook","Newsletter sentences"].reduce((a,p)=>a+(MANIFEST.totals[p]||0),0);
       $("demo-note").textContent=`Demo build: the explorer below is running on a ${fmtN(t)}-message sample, not the full dataset. Download links point at placeholders.`; $("demo-note").hidden=false; }
     initFilters(); render(); renderFiles();
   }catch(e){

@@ -1,64 +1,376 @@
 {
- "version": "sample",
+ "version": "v1.0",
  "generated": "2026-09-21",
  "totals": {
-  "Twitter": 1000,
-  "Facebook": 1000,
-  "Newsletters": 42,
-  "Newsletter sentences": 1000
+  "Twitter": 4984262,
+  "Facebook": 2570839,
+  "Newsletters": 160347,
+  "Newsletter sentences": 4407739
  },
- "members": 418,
+ "members": 1036,
  "files": [
   {
    "platform": "Twitter",
+   "congress": 111,
+   "rows": 78102,
+   "csv_gz": {
+    "file": "twitter_111.csv.gz",
+    "bytes": 2410964
+   },
+   "parquet": {
+    "file": "twitter_111.parquet",
+    "bytes": 2097732
+   }
+  },
+  {
+   "platform": "Twitter",
+   "congress": 112,
+   "rows": 364035,
+   "csv_gz": {
+    "file": "twitter_112.csv.gz",
+    "bytes": 13175666
+   },
+   "parquet": {
+    "file": "twitter_112.parquet",
+    "bytes": 9668291
+   }
+  },
+  {
+   "platform": "Twitter",
+   "congress": 113,
+   "rows": 606431,
+   "csv_gz": {
+    "file": "twitter_113.csv.gz",
+    "bytes": 22346099
+   },
+   "parquet": {
+    "file": "twitter_113.parquet",
+    "bytes": 16135838
+   }
+  },
+  {
+   "platform": "Twitter",
+   "congress": 114,
+   "rows": 718786,
+   "csv_gz": {
+    "file": "twitter_114.csv.gz",
+    "bytes": 26617672
+   },
+   "parquet": {
+    "file": "twitter_114.parquet",
+    "bytes": 19282412
+   }
+  },
+  {
+   "platform": "Twitter",
+   "congress": 115,
+   "rows": 908636,
+   "csv_gz": {
+    "file": "twitter_115.csv.gz",
+    "bytes": 35283283
+   },
+   "parquet": {
+    "file": "twitter_115.parquet",
+    "bytes": 25933839
+   }
+  },
+  {
+   "platform": "Twitter",
+   "congress": 116,
+   "rows": 1150780,
+   "csv_gz": {
+    "file": "twitter_116.csv.gz",
+    "bytes": 45009179
+   },
+   "parquet": {
+    "file": "twitter_116.parquet",
+    "bytes": 33816844
+   }
+  },
+  {
+   "platform": "Twitter",
    "congress": 117,
-   "rows": 1000,
+   "rows": 1157492,
    "csv_gz": {
     "file": "twitter_117.csv.gz",
-    "bytes": 23330
+    "bytes": 45752913
    },
    "parquet": {
     "file": "twitter_117.parquet",
-    "bytes": 31670
+    "bytes": 34511337
    }
   },
   {
    "platform": "Facebook",
    "congress": 111,
-   "rows": 1000,
+   "rows": 51801,
    "csv_gz": {
     "file": "facebook_111.csv.gz",
-    "bytes": 30097
+    "bytes": 1822407
    },
    "parquet": {
     "file": "facebook_111.parquet",
-    "bytes": 36735
+    "bytes": 1507721
+   }
+  },
+  {
+   "platform": "Facebook",
+   "congress": 112,
+   "rows": 163971,
+   "csv_gz": {
+    "file": "facebook_112.csv.gz",
+    "bytes": 6470865
+   },
+   "parquet": {
+    "file": "facebook_112.parquet",
+    "bytes": 5197637
+   }
+  },
+  {
+   "platform": "Facebook",
+   "congress": 113,
+   "rows": 204036,
+   "csv_gz": {
+    "file": "facebook_113.csv.gz",
+    "bytes": 8427457
+   },
+   "parquet": {
+    "file": "facebook_113.parquet",
+    "bytes": 6435942
+   }
+  },
+  {
+   "platform": "Facebook",
+   "congress": 114,
+   "rows": 347170,
+   "csv_gz": {
+    "file": "facebook_114.csv.gz",
+    "bytes": 14321445
+   },
+   "parquet": {
+    "file": "facebook_114.parquet",
+    "bytes": 10542231
+   }
+  },
+  {
+   "platform": "Facebook",
+   "congress": 115,
+   "rows": 476321,
+   "csv_gz": {
+    "file": "facebook_115.csv.gz",
+    "bytes": 19709827
+   },
+   "parquet": {
+    "file": "facebook_115.parquet",
+    "bytes": 14423738
+   }
+  },
+  {
+   "platform": "Facebook",
+   "congress": 116,
+   "rows": 625321,
+   "csv_gz": {
+    "file": "facebook_116.csv.gz",
+    "bytes": 25880297
+   },
+   "parquet": {
+    "file": "facebook_116.parquet",
+    "bytes": 18963708
+   }
+  },
+  {
+   "platform": "Facebook",
+   "congress": 117,
+   "rows": 702219,
+   "csv_gz": {
+    "file": "facebook_117.csv.gz",
+    "bytes": 28922574
+   },
+   "parquet": {
+    "file": "facebook_117.parquet",
+    "bytes": 21667595
    }
   },
   {
    "platform": "Newsletters",
    "congress": 111,
-   "rows": 42,
+   "rows": 8042,
    "csv_gz": {
     "file": "newsletters_111.csv.gz",
-    "bytes": 1555
+    "bytes": 234452
    },
    "parquet": {
     "file": "newsletters_111.parquet",
-    "bytes": 10694
+    "bytes": 203828
+   }
+  },
+  {
+   "platform": "Newsletters",
+   "congress": 112,
+   "rows": 21597,
+   "csv_gz": {
+    "file": "newsletters_112.csv.gz",
+    "bytes": 628099
+   },
+   "parquet": {
+    "file": "newsletters_112.parquet",
+    "bytes": 542993
+   }
+  },
+  {
+   "platform": "Newsletters",
+   "congress": 113,
+   "rows": 22357,
+   "csv_gz": {
+    "file": "newsletters_113.csv.gz",
+    "bytes": 646700
+   },
+   "parquet": {
+    "file": "newsletters_113.parquet",
+    "bytes": 559766
+   }
+  },
+  {
+   "platform": "Newsletters",
+   "congress": 114,
+   "rows": 23837,
+   "csv_gz": {
+    "file": "newsletters_114.csv.gz",
+    "bytes": 692904
+   },
+   "parquet": {
+    "file": "newsletters_114.parquet",
+    "bytes": 598598
+   }
+  },
+  {
+   "platform": "Newsletters",
+   "congress": 115,
+   "rows": 24709,
+   "csv_gz": {
+    "file": "newsletters_115.csv.gz",
+    "bytes": 717034
+   },
+   "parquet": {
+    "file": "newsletters_115.parquet",
+    "bytes": 619179
+   }
+  },
+  {
+   "platform": "Newsletters",
+   "congress": 116,
+   "rows": 30420,
+   "csv_gz": {
+    "file": "newsletters_116.csv.gz",
+    "bytes": 878211
+   },
+   "parquet": {
+    "file": "newsletters_116.parquet",
+    "bytes": 757596
+   }
+  },
+  {
+   "platform": "Newsletters",
+   "congress": 117,
+   "rows": 29385,
+   "csv_gz": {
+    "file": "newsletters_117.csv.gz",
+    "bytes": 829779
+   },
+   "parquet": {
+    "file": "newsletters_117.parquet",
+    "bytes": 733043
    }
   },
   {
    "platform": "Newsletter sentences",
    "congress": 111,
-   "rows": 1000,
+   "rows": 218674,
    "csv_gz": {
     "file": "newsletter_sentences_111.csv.gz",
-    "bytes": 25597
+    "bytes": 5296536
    },
    "parquet": {
     "file": "newsletter_sentences_111.parquet",
-    "bytes": 28907
+    "bytes": 3751800
+   }
+  },
+  {
+   "platform": "Newsletter sentences",
+   "congress": 112,
+   "rows": 568780,
+   "csv_gz": {
+    "file": "newsletter_sentences_112.csv.gz",
+    "bytes": 13729906
+   },
+   "parquet": {
+    "file": "newsletter_sentences_112.parquet",
+    "bytes": 9189220
+   }
+  },
+  {
+   "platform": "Newsletter sentences",
+   "congress": 113,
+   "rows": 586346,
+   "csv_gz": {
+    "file": "newsletter_sentences_113.csv.gz",
+    "bytes": 14591361
+   },
+   "parquet": {
+    "file": "newsletter_sentences_113.parquet",
+    "bytes": 9860637
+   }
+  },
+  {
+   "platform": "Newsletter sentences",
+   "congress": 114,
+   "rows": 641825,
+   "csv_gz": {
+    "file": "newsletter_sentences_114.csv.gz",
+    "bytes": 15935370
+   },
+   "parquet": {
+    "file": "newsletter_sentences_114.parquet",
+    "bytes": 10802342
+   }
+  },
+  {
+   "platform": "Newsletter sentences",
+   "congress": 115,
+   "rows": 670749,
+   "csv_gz": {
+    "file": "newsletter_sentences_115.csv.gz",
+    "bytes": 16560081
+   },
+   "parquet": {
+    "file": "newsletter_sentences_115.parquet",
+    "bytes": 11210422
+   }
+  },
+  {
+   "platform": "Newsletter sentences",
+   "congress": 116,
+   "rows": 837113,
+   "csv_gz": {
+    "file": "newsletter_sentences_116.csv.gz",
+    "bytes": 20794829
+   },
+   "parquet": {
+    "file": "newsletter_sentences_116.parquet",
+    "bytes": 13553497
+   }
+  },
+  {
+   "platform": "Newsletter sentences",
+   "congress": 117,
+   "rows": 884252,
+   "csv_gz": {
+    "file": "newsletter_sentences_117.csv.gz",
+    "bytes": 21344727
+   },
+   "parquet": {
+    "file": "newsletter_sentences_117.parquet",
+    "bytes": 13919416
    }
   }
  ]
