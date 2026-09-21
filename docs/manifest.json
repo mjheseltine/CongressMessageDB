@@ -1,0 +1,65 @@
+{
+ "version": "sample",
+ "generated": "2026-09-21",
+ "totals": {
+  "Twitter": 1000,
+  "Facebook": 1000,
+  "Newsletters": 42,
+  "Newsletter sentences": 1000
+ },
+ "members": 418,
+ "files": [
+  {
+   "platform": "Twitter",
+   "congress": 117,
+   "rows": 1000,
+   "csv_gz": {
+    "file": "twitter_117.csv.gz",
+    "bytes": 23330
+   },
+   "parquet": {
+    "file": "twitter_117.parquet",
+    "bytes": 31670
+   }
+  },
+  {
+   "platform": "Facebook",
+   "congress": 111,
+   "rows": 1000,
+   "csv_gz": {
+    "file": "facebook_111.csv.gz",
+    "bytes": 30097
+   },
+   "parquet": {
+    "file": "facebook_111.parquet",
+    "bytes": 36735
+   }
+  },
+  {
+   "platform": "Newsletters",
+   "congress": 111,
+   "rows": 42,
+   "csv_gz": {
+    "file": "newsletters_111.csv.gz",
+    "bytes": 1555
+   },
+   "parquet": {
+    "file": "newsletters_111.parquet",
+    "bytes": 10694
+   }
+  },
+  {
+   "platform": "Newsletter sentences",
+   "congress": 111,
+   "rows": 1000,
+   "csv_gz": {
+    "file": "newsletter_sentences_111.csv.gz",
+    "bytes": 25597
+   },
+   "parquet": {
+    "file": "newsletter_sentences_111.parquet",
+    "bytes": 28907
+   }
+  }
+ ]
+}

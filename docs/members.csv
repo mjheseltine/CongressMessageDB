@@ -1,0 +1,452 @@
+MemberICPSR,Congress,MemberName,MemberParty,MemberChamber,MemberState,MemberDistrict,Source
+4812,111,"INOUYE, Daniel Ken",Other,Senate,HI,S,messages
+14265,111,"Oberstar, James",Democrat,House,MN,8,messages
+14651,111,"NELSON, Clarence William (Bill)",Democrat,Senate,FL,S,messages
+14659,111,,Other,House,,,messages
+14854,111,"Rogers, Harold",Other,House,KY,5,messages
+14858,111,"SCHUMER, Charles Ellis (Chuck)",Other,Senate,NY,S,messages
+14871,111,"WYDEN, Ronald Lee",Other,Senate,OR,S,messages
+15019,111,"Cooper, Jim",Other,House,TN,5,messages
+15033,111,"Levin, Sander",Democrat,House,MI,12,messages
+15039,111,"McCAIN, John Sidney, III",Other,Senate,AZ,S,messages
+15420,111,"Herger, Wally",Republican,House,CA,2,messages
+15424,111,"INHOFE, James Mountain",Other,Senate,OK,S,messages
+15444,111,"Slaughter, Louise",Democrat,House,NY,28,messages
+15621,111,"Rohrabacher, Dana",Other,House,CA,46,messages
+15627,111,"Stearns, Cliff",Other,House,FL,6,messages
+20101,111,"Boozman, John",Other,House,AR,3,messages
+20103,111,"Honda, Michael",Other,House,CA,15,messages
+20104,111,"Schiff, Adam",Democrat,House,CA,29,messages
+20107,111,"Issa, Darrell",Other,House,CA,49,messages
+20110,111,"Miller, Jeff",Republican,House,FL,1,messages
+20117,111,"Pence, Mike",Other,House,IN,6,messages
+20124,111,"Graves, Sam",Republican,House,MO,6,messages
+20125,111,"Rehberg, Denny",Republican,House,MT,1,messages
+20129,111,"Israel, Steve",Democrat,House,NY,2,messages
+20137,111,"Brown, Henry",Republican,House,SC,1,messages
+20144,111,"Cantor, Eric",Other,House,VA,7,messages
+20310,111,"Sanchez, Linda",Other,House,CA,39,messages
+20333,111,"Kline, John",Republican,House,MN,2,messages
+20336,111,"Garrett, Scott",Other,House,NJ,5,messages
+20338,111,"Bishop, Timothy",Democrat,House,NY,1,messages
+20341,111,"Miller, Brad",Other,House,NC,13,messages
+20342,111,"Turner, Michael",Other,House,OH,3,messages
+20347,111,"Barrett, J.",Republican,House,SC,3,messages
+20351,111,"Blackburn, Marsha",Other,House,TN,7,messages
+20353,111,"Neugebauer, Randy",Republican,House,TX,19,messages
+20356,111,"Carter, John",Other,House,TX,31,messages
+20503,111,"Mack, Connie",Republican,House,FL,14,messages
+20504,111,"Wasserman Schultz, Debbie",Other,House,FL,20,messages
+20505,111,"Price, Tom",Republican,House,GA,6,messages
+20511,111,"Davis, Geoff",Republican,House,KY,4,messages
+20516,111,"Carnahan, Russ",Democrat,House,MO,3,messages
+20517,111,"Cleaver, Emanuel",Other,House,MO,5,messages
+20518,111,"Fortenberry, Jeff",Other,House,NE,1,messages
+20522,111,"McHenry, Patrick",Other,House,NC,10,messages
+20527,111,"Gohmert, Louie",Other,House,TX,1,messages
+20530,111,"McCaul, Michael",Other,House,TX,10,messages
+20535,111,"McMorris Rodgers, Cathy",Other,House,WA,5,messages
+20536,111,"Reichert, David",Republican,House,WA,8,messages
+20537,111,"Moore, Gwen",Other,House,WI,4,messages
+20701,111,"Giffords, Gabrielle",Other,House,AZ,8,messages
+20703,111,"McCarthy, Kevin",Other,House,CA,22,messages
+20704,111,"Lamborn, Doug",Other,House,CO,5,messages
+20705,111,"Perlmutter, Ed",Other,House,CO,7,messages
+20706,111,"Courtney, Joe",Democrat,House,CT,2,messages
+20708,111,"Castor, Kathy",Other,House,FL,11,messages
+20715,111,"Roskam, Peter",Other,House,IL,6,messages
+20728,111,"Bachmann, Michele",Other,House,MN,6,messages
+20730,111,"Heller, Dean",Other,House,NV,2,messages
+20735,111,"GILLIBRAND, Kirsten",Other,Senate,NY,S,messages
+20743,111,"Altmire, Jason",Democrat,House,PA,4,messages
+20748,111,"Cohen, Steve",Democrat,House,TN,9,messages
+20756,111,"Wittman, Robert",Other,House,VA,1,messages
+20759,111,"Scalise, Steve",Other,House,LA,1,messages
+20904,111,"Polis, Jared",Other,House,CO,2,messages
+20914,111,"Schock, Aaron",Other,House,IL,18,messages
+20915,111,"Jenkins, Lynn",Republican,House,KS,2,messages
+20917,111,"Cao, Anh",Republican,House,LA,2,messages
+20925,111,"Harper, Gregg",Other,House,MS,3,messages
+20926,111,"Luetkemeyer, Blaine",Republican,House,MO,9,messages
+20929,111,"Lance, Leonard",Republican,House,NJ,7,messages
+20944,111,"Schrader, Kurt",Democrat,House,OR,5,messages
+20947,111,"Roe, David",Republican,House,TN,1,messages
+20948,111,"Olson, Pete",Other,House,TX,22,messages
+20951,111,"Perriello, Thomas",Democrat,House,VA,5,messages
+20955,111,"Chu, Judy",Other,House,CA,32,messages
+20958,111,"Garamendi, John",Other,House,CA,10,messages
+20963,111,"Hunter, Duncan",Republican,House,CA,52,messages
+29109,111,"DeLauro, Rosa",Other,House,CT,3,messages
+29137,111,"Boehner, John",Other,House,OH,8,messages
+29143,111,"Johnson, Sam",Other,House,TX,3,messages
+29147,111,"SANDERS, Bernard",Other,Senate,VT,S,messages
+29305,111,"LINCOLN, Blanche Lambert",Democrat,Senate,AR,S,messages
+29321,111,"Royce, Edward",Other,House,CA,40,messages
+29345,111,"CRAPO, Michael Dean",Other,Senate,ID,S,messages
+29356,111,"Bartlett, Roscoe",Other,House,MD,6,messages
+29361,111,"Hoekstra, Peter",Republican,House,MI,2,messages
+29393,111,"Lucas, Frank",Other,House,OK,3,messages
+29534,111,"WICKER, Roger F.",Republican,Senate,MS,S,messages
+29546,111,"Jones, Walter",Other,House,NC,3,messages
+29553,111,"LaTourette, Steven",Other,House,OH,14,messages
+29580,111,"Hastings, Doc",Republican,House,WA,4,messages
+29588,111,"Blumenauer, Earl",Other,House,OR,3,messages
+29701,111,"Aderholt, Robert",Other,House,AL,4,messages
+29722,111,"Moran, Jerry",Republican,House,KS,1,messages
+29732,111,"STABENOW, Deborah Ann",Other,Senate,MI,S,messages
+29735,111,"Blunt, Roy",Other,House,MO,7,messages
+29748,111,"Kucinich, Dennis",Other,House,OH,10,messages
+29754,111,"THUNE, John",Republican,Senate,SD,S,messages
+29760,111,"Brady, Kevin",Other,House,TX,8,messages
+29762,111,"Granger, Kay",Other,House,TX,12,messages
+29906,111,"UDALL, Mark",Other,Senate,CO,S,messages
+29909,111,"ISAKSON, Johnny",Other,Senate,GA,S,messages
+29911,111,"Schakowsky, Janice",Other,House,IL,9,messages
+29923,111,"Holt, Rush",Other,House,NJ,12,messages
+29925,111,"Crowley, Joseph",Other,House,NY,7,messages
+29926,111,"Weiner, Anthony",Other,House,NY,9,messages
+29936,111,"DeMINT, James W.",Other,Senate,SC,S,messages
+39308,111,"Goodlatte, Bob",Republican,House,VA,6,messages
+39310,111,"CANTWELL, Maria E.",Democrat,Senate,WA,S,messages
+40300,111,"MURKOWSKI, Lisa",Other,Senate,AK,S,messages
+40701,111,"McCASKILL, Claire",Democrat,Senate,MO,S,messages
+40906,111,"SHAHEEN, Jeanne",Other,Senate,NH,S,messages
+40909,111,"WARNER, Mark",Other,Senate,VA,S,messages
+40910,111,"BENNET, Michael F.",Other,Senate,CO,S,messages
+40916,111,"COONS, Christopher A.",Other,Senate,DE,S,messages
+49706,111,"ENZI, Michael B.",Other,Senate,WY,S,messages
+14226,117,"GRASSLEY, Charles Ernest",Republican,Senate,IA,S,messages
+14858,117,"SCHUMER, Charles Ellis (Chuck)",Democrat,Senate,NY,S,messages
+14873,117,"Hoyer, Steny",Democrat,House,MD,5,messages
+15015,117,"CARPER, Thomas Richard",Democrat,Senate,DE,S,messages
+15021,117,"DURBIN, Richard Joseph",Democrat,Senate,IL,S,messages
+15029,117,"Kaptur, Marcy",Democrat,House,OH,9,messages
+15408,117,"CARDIN, Benjamin Louis",Democrat,Senate,MD,S,messages
+15433,117,"Mfume, Kweisi",Democrat,House,MD,7,messages
+15448,117,"Pelosi, Nancy",Democrat,House,CA,8,messages
+15454,117,"Pallone, Frank",Democrat,House,NJ,6,messages
+20101,117,"BOOZMAN, John",Republican,House,AR,3,messages
+20104,117,"Schiff, Adam",Democrat,House,CA,29,messages
+20107,117,"Issa, Darrell",Republican,House,CA,49,messages
+20122,117,"McCollum, Betty",Democrat,House,MN,4,messages
+20145,117,"Larsen, Rick",Democrat,House,WA,2,messages
+20146,117,"CAPITO, Shelley Moore",Republican,House,WV,2,messages
+20301,117,"Rogers, Mike",Republican,House,AL,3,messages
+20305,117,"Grijalva, Raul",Democrat,House,AZ,7,messages
+20310,117,"Sanchez, Linda",Democrat,House,CA,39,messages
+20322,117,"Case, Ed",Democrat,House,HI,1,messages
+20342,117,"Turner, Michael",Republican,House,OH,3,messages
+20344,117,"Cole, Tom",Republican,House,OK,4,messages
+20351,117,"BLACKBURN, Marsha",Republican,House,TN,7,messages
+20355,117,"Burgess, Michael",Republican,House,TX,26,messages
+20501,117,"Costa, Jim",Democrat,House,CA,20,messages
+20504,117,"Wasserman Schultz, Debbie",Democrat,House,FL,20,messages
+20519,117,"Higgins, Brian",Democrat,House,NY,27,messages
+20521,117,"Foxx, Virginia",Republican,House,NC,5,messages
+20522,117,"McHenry, Patrick",Republican,House,NC,10,messages
+20529,117,"Green, Al",Democrat,House,TX,9,messages
+20530,117,"McCaul, Michael",Republican,House,TX,10,messages
+20535,117,"McMorris Rodgers, Cathy",Republican,House,WA,5,messages
+20537,117,"Moore, Gwen",Democrat,House,WI,4,messages
+20538,117,"Matsui, Doris",Democrat,House,CA,5,messages
+20704,117,"Lamborn, Doug",Republican,House,CO,5,messages
+20707,117,"MURPHY, Christopher",Democrat,House,CT,5,messages
+20708,117,"Castor, Kathy",Democrat,House,FL,11,messages
+20724,117,"Sarbanes, John",Democrat,House,MD,3,messages
+20725,117,"Walberg, Tim",Republican,House,MI,7,messages
+20733,117,"Clarke, Yvette",Democrat,House,NY,11,messages
+20735,117,"GILLIBRAND, Kirsten",Democrat,Senate,NY,S,messages
+20738,117,"Jordan, Jim",Republican,House,OH,4,messages
+20748,117,"Cohen, Steve",Democrat,House,TN,9,messages
+20755,117,"Latta, Robert",Republican,House,OH,5,messages
+20756,117,"Wittman, Robert",Republican,House,VA,1,messages
+20757,117,"Carson, Andre",Democrat,House,IN,7,messages
+20758,117,"Bilirakis, Gus",Republican,House,FL,9,messages
+20907,117,"Himes, James",Democrat,House,CT,4,messages
+20916,117,"Guthrie, Brett",Republican,House,KY,2,messages
+20919,117,"CASSIDY, Bill",Republican,House,LA,6,messages
+20923,117,"PETERS, Gary C.",Democrat,House,MI,9,messages
+20927,117,"Titus, Dina",Democrat,House,NV,3,messages
+20930,117,"HEINRICH, Martin",Democrat,House,NM,1,messages
+20932,117,"LUJÃN, Ben Ray",Democrat,House,NM,3,messages
+20946,117,"Thompson, Glenn",Republican,House,PA,5,messages
+20953,117,"LUMMIS, Cynthia M.",Republican,House,WY,1,messages
+20954,117,"Quigley, Mike",Democrat,House,IL,5,messages
+20958,117,"Garamendi, John",Democrat,House,CA,10,messages
+21102,117,"Sewell, Terri",Democrat,House,AL,7,messages
+21108,117,"Womack, Steve",Republican,House,AR,3,messages
+21116,117,"Webster, Daniel",Republican,House,FL,8,messages
+21118,117,"Wilson, Frederica",Democrat,House,FL,17,messages
+21132,117,"Bucshon, Larry",Republican,House,IN,8,messages
+21133,117,"YOUNG, Todd",Republican,House,IN,9,messages
+21142,117,"Huizenga, Bill",Republican,House,MI,2,messages
+21162,117,"Johnson, Bill",Republican,House,OH,6,messages
+21166,117,"LANKFORD, James",Republican,House,OK,5,messages
+21172,117,"Cicilline, David",Democrat,House,RI,1,messages
+21173,117,"SCOTT, Tim",Republican,House,SC,1,messages
+21174,117,"Duncan, Jeff",Republican,House,SC,3,messages
+21178,117,"Fleischmann, Charles",Republican,House,TN,3,messages
+21196,117,"Amodei, Mark",Republican,House,NV,2,messages
+21198,117,"Bonamici, Suzanne",Democrat,House,OR,1,messages
+21300,117,"SINEMA, Kyrsten",Democrat,House,AZ,9,messages
+21301,117,"COTTON, Tom",Republican,House,AR,4,messages
+21303,117,"Huffman, Jared",Democrat,House,CA,2,messages
+21306,117,"Swalwell, Eric",Democrat,House,CA,15,messages
+21308,117,"Brownley, Julia",Democrat,House,CA,26,messages
+21309,117,"Cardenas, Tony",Democrat,House,CA,29,messages
+21311,117,"Ruiz, Raul",Democrat,House,CA,36,messages
+21314,117,"Vargas, Juan",Democrat,House,CA,51,messages
+21315,117,"Peters, Scott",Democrat,House,CA,52,messages
+21321,117,"Frankel, Lois",Democrat,House,FL,22,messages
+21325,117,"DUCKWORTH, Tammy",Democrat,House,IL,8,messages
+21337,117,"Wagner, Ann",Republican,House,MO,2,messages
+21338,117,"DAINES, Steve",Republican,House,MT,1,messages
+21339,117,"Horsford, Steven",Democrat,House,NV,4,messages
+21340,117,"Kuster, Ann",Democrat,House,NH,2,messages
+21342,117,"Meng, Grace",Democrat,House,NY,6,messages
+21343,117,"Jeffries, Hakeem",Democrat,House,NY,8,messages
+21346,117,"Hudson, Richard",Republican,House,NC,8,messages
+21350,117,"CRAMER, Kevin",Republican,House,ND,1,messages
+21351,117,"Wenstrup, Brad",Republican,House,OH,2,messages
+21353,117,"Joyce, David",Republican,House,OH,14,messages
+21356,117,"Perry, Scott",Republican,House,PA,4,messages
+21360,117,"Weber, Randy",Republican,House,TX,14,messages
+21362,117,"Castro, Joaquin",Democrat,House,TX,20,messages
+21364,117,"Williams, Roger",Republican,House,TX,25,messages
+21365,117,"Veasey, Marc",Democrat,House,TX,33,messages
+21367,117,"Stewart, Chris",Republican,House,UT,2,messages
+21368,117,"Kilmer, Derek",Democrat,House,WA,6,messages
+21370,117,"Pocan, Mark",Democrat,House,WI,2,messages
+21371,117,"Kelly, Robin",Democrat,House,IL,2,messages
+21372,117,"Kildee, Daniel",Democrat,House,MI,5,messages
+21373,117,"Smith, Jason",Republican,House,MO,8,messages
+21500,117,"Palmer, Gary",Republican,House,AL,6,messages
+21502,117,"Gallego, Ruben",Democrat,House,AZ,7,messages
+21503,117,"Hill, French",Republican,House,AR,2,messages
+21504,117,"DeSaulnier, Mark",Democrat,House,CA,11,messages
+21507,117,"Lieu, Ted",Democrat,House,CA,33,messages
+21508,117,"Torres, Norma",Democrat,House,CA,35,messages
+21510,117,"Buck, Ken",Republican,House,CO,4,messages
+21513,117,"Carter, Buddy",Republican,House,GA,1,messages
+21515,117,"Loudermilk, Barry",Republican,House,GA,11,messages
+21516,117,"Allen, Rick",Republican,House,GA,12,messages
+21519,117,"Bost, Mike",Republican,House,IL,12,messages
+21526,117,"Moolenaar, John",Republican,House,MI,4,messages
+21529,117,"Dingell, Debbie",Democrat,House,MI,12,messages
+21538,117,"Watson Coleman, Bonnie",Democrat,House,NJ,12,messages
+21541,117,"Stefanik, Elise",Republican,House,NY,21,messages
+21548,117,"Boyle, Brendan",Democrat,House,PA,13,messages
+21551,117,"Babin, Brian",Republican,House,TX,36,messages
+21554,117,"Beyer, Don",Democrat,House,VA,8,messages
+21556,117,"Newhouse, Dan",Republican,House,WA,4,messages
+21557,117,"Mooney, Alex",Republican,House,WV,2,messages
+21559,117,"Grothman, Glenn",Republican,House,WI,6,messages
+21562,117,"LaHood, Darin",Republican,House,IL,18,messages
+21563,117,"Westerman, Bruce",Republican,House,AR,4,messages
+21564,117,"Davidson, Warren",Republican,House,OH,8,messages
+21565,117,"Comer, James",Republican,House,KY,1,messages
+21566,117,"Evans, Dwight",Democrat,House,PA,2,messages
+21701,117,"Bacon, Don",Republican,House,NE,2,messages
+21702,117,"Banks, Jim",Republican,House,IN,3,messages
+21705,117,"Biggs, Andy",Republican,House,AZ,5,messages
+21715,117,"Espaillat, Adriano",Democrat,House,NY,13,messages
+21719,117,"Gaetz, Matt",Republican,House,FL,1,messages
+21722,117,"Gonzalez, Vicente",Democrat,House,TX,15,messages
+21723,117,"Gottheimer, Josh",Democrat,House,NJ,5,messages
+21726,117,"Jayapal, Pramila",Democrat,House,WA,7,messages
+21727,117,"Johnson, Mike",Republican,House,LA,4,messages
+21728,117,"Khanna, Ro",Democrat,House,CA,17,messages
+21730,117,"Krishnamoorthi, Raja",Democrat,House,IL,8,messages
+21731,117,"Kustoff, David",Republican,House,TN,8,messages
+21734,117,"MARSHALL, Roger Wayne",Republican,House,KS,1,messages
+21735,117,"Mast, Brian",Republican,House,FL,18,messages
+21745,117,"Smucker, Lloyd",Republican,House,PA,16,messages
+21746,117,"Soto, Darren",Democrat,House,FL,9,messages
+21749,117,"Tenney, Claudia",Republican,House,NY,22,messages
+21754,117,"Gomez, Jimmy",Democrat,House,CA,34,messages
+21755,117,"Curtis, John",Republican,House,UT,3,messages
+21757,117,"Lesko, Debbie",Republican,House,AZ,8,messages
+21759,117,"Balderson, Troy",Republican,House,OH,12,messages
+21761,117,"Morelle, Joseph",Democrat,House,NY,25,messages
+21762,117,"Scanlon, Mary Gay",Democrat,House,PA,7,messages
+21763,117,"Wild, Susan",Democrat,House,PA,15,messages
+21900,117,"Allred, Colin",Democrat,House,TX,32,messages
+21901,117,"Armstrong, Kelly",Republican,House,ND,1,messages
+21903,117,"Baird, James",Republican,House,IN,4,messages
+21905,117,"Burchett, Tim",Republican,House,TN,2,messages
+21906,117,"Casten, Sean",Democrat,House,IL,6,messages
+21908,117,"Cline, Ben",Republican,House,VA,6,messages
+21910,117,"Craig, Angie",Democrat,House,MN,2,messages
+21911,117,"Crenshaw, Daniel",Republican,House,TX,2,messages
+21912,117,"Crow, Jason",Democrat,House,CO,6,messages
+21914,117,"Davids, Sharice",Democrat,House,KS,3,messages
+21917,117,"Escobar, Veronica",Democrat,House,TX,16,messages
+21919,117,"Fletcher, Lizzie",Democrat,House,TX,7,messages
+21920,117,"Fulcher, Russ",Republican,House,ID,1,messages
+21921,117,"Garcia, Jesus",Democrat,House,IL,4,messages
+21922,117,"Garcia, Sylvia",Democrat,House,TX,29,messages
+21923,117,"Golden, Jared",Democrat,House,ME,2,messages
+21925,117,"Gooden, Lance",Republican,House,TX,5,messages
+21926,117,"Green, Mark",Republican,House,TN,7,messages
+21927,117,"Guest, Michael",Republican,House,MS,3,messages
+21930,117,"Harder, Josh",Democrat,House,CA,10,messages
+21931,117,"Hayes, Jahana",Democrat,House,CT,5,messages
+21934,117,"Houlahan, Chrissy",Democrat,House,PA,6,messages
+21935,117,"Johnson, Dusty",Republican,House,SD,1,messages
+21937,117,"Kim, Andrew",Democrat,House,NJ,3,messages
+21938,117,"Lee, Susie",Democrat,House,NV,3,messages
+21939,117,"Levin, Mike",Democrat,House,CA,49,messages
+21945,117,"Meuser, Dan",Republican,House,PA,9,messages
+21946,117,"Miller, Carol",Republican,House,WV,3,messages
+21948,117,"Neguse, Joe",Democrat,House,CO,2,messages
+21950,117,"Omar, Ilhan",Democrat,House,MN,5,messages
+21951,117,"Pappas, Chris",Democrat,House,NH,1,messages
+21953,117,"Phillips, Dean",Democrat,House,MN,3,messages
+21954,117,"Porter, Katie",Democrat,House,CA,45,messages
+21955,117,"Pressley, Ayanna",Democrat,House,MA,7,messages
+21956,117,"Reschenthaler, Guy",Republican,House,PA,14,messages
+21959,117,"Rose, John",Republican,House,TN,6,messages
+21961,117,"Roy, Chip",Republican,House,TX,21,messages
+21962,117,"Schrier, Kim",Democrat,House,WA,8,messages
+21964,117,"Sherrill, Mikie",Democrat,House,NJ,11,messages
+21966,117,"Spanberger, Abigail",Democrat,House,VA,7,messages
+21969,117,"Stauber, Pete",Republican,House,MN,8,messages
+21970,117,"Steil, Bryan",Republican,House,WI,1,messages
+21971,117,"Steube, Greg",Republican,House,FL,17,messages
+21972,117,"Stevens, Haley",Democrat,House,MI,11,messages
+21975,117,"Tlaib, Rashida",Democrat,House,MI,13,messages
+21977,117,"Trahan, Lori",Democrat,House,MA,3,messages
+21979,117,"Underwood, Lauren",Democrat,House,IL,14,messages
+21986,117,"Bishop, Dan",Republican,House,NC,9,messages
+21987,117,"Murphy, Gregory",Republican,House,NC,3,messages
+21988,117,"Garcia, Mike",Republican,House,CA,25,messages
+22100,117,"Auchincloss, Jake",Democrat,House,MA,4,messages
+22102,117,"Bice, Stephanie",Republican,House,OK,5,messages
+22103,117,"Boebert, Lauren",Republican,House,CO,3,messages
+22105,117,"Bowman, Jamaal",Democrat,House,NY,16,messages
+22106,117,"Bush, Cori",Democrat,House,MO,1,messages
+22107,117,"Cammack, Kat",Republican,House,FL,3,messages
+22108,117,"Carl, Jerry",Republican,House,AL,1,messages
+22110,117,"Clyde, Andrew",Republican,House,GA,9,messages
+22111,117,"Donalds, Byron",Republican,House,FL,19,messages
+22112,117,"Fallon, Pat",Republican,House,TX,4,messages
+22113,117,"Feenstra, Randy",Republican,House,IA,4,messages
+22114,117,"Fischbach, Michelle",Republican,House,MN,7,messages
+22116,117,"Franklin, C. Scott",Republican,House,FL,15,messages
+22117,117,"Garbarino, Andrew",Republican,House,NY,2,messages
+22118,117,"Gimenez, Carlos",Republican,House,FL,26,messages
+22119,117,"Gonzales, Tony",Republican,House,TX,23,messages
+22120,117,"Good, Bob",Republican,House,VA,5,messages
+22121,117,"Greene, Marjorie",Republican,House,GA,14,messages
+22122,117,"Harshbarger, Diana",Republican,House,TN,1,messages
+22124,117,"Hinson, Ashley",Republican,House,IA,1,messages
+22125,117,"Jackson, Ronny",Republican,House,TX,13,messages
+22126,117,"Jacobs, Sara",Democrat,House,CA,53,messages
+22129,117,"Kim, Young",Republican,House,CA,39,messages
+22130,117,"LaTurner, Jake",Republican,House,KS,2,messages
+22131,117,"Leger Fernandez, Teresa",Democrat,House,NM,3,messages
+22132,117,"Mace, Nancy",Republican,House,SC,1,messages
+22133,117,"Malliotakis, Nicole",Republican,House,NY,11,messages
+22135,117,"Manning, Kathy",Democrat,House,NC,6,messages
+22136,117,"McClain, Lisa",Republican,House,MI,10,messages
+22138,117,"Miller, Mary",Republican,House,IL,15,messages
+22139,117,"Miller-Meeks, Mariannette",Republican,House,IA,2,messages
+22140,117,"Moore, Barry",Republican,House,AL,2,messages
+22142,117,"Mrvan, Frank",Democrat,House,IN,1,messages
+22143,117,"Nehls, Troy",Republican,House,TX,22,messages
+22145,117,"Obernolte, Jay",Republican,House,CA,8,messages
+22146,117,"Owens, Burgess",Republican,House,UT,4,messages
+22147,117,"Pfluger, August",Republican,House,TX,11,messages
+22148,117,"Rosendale, Matthew",Republican,House,MT,1,messages
+22149,117,"Ross, Deborah",Democrat,House,NC,2,messages
+22150,117,"Salazar, Maria",Republican,House,FL,27,messages
+22151,117,"Spartz, Victoria",Republican,House,IN,5,messages
+22152,117,"Steel, Michelle",Republican,House,CA,48,messages
+22153,117,"Strickland, Marilyn",Democrat,House,WA,10,messages
+22154,117,"Torres, Ritchie",Democrat,House,NY,15,messages
+22155,117,"Van Duyne, Beth",Republican,House,TX,24,messages
+22156,117,"Williams, Nikema",Democrat,House,GA,5,messages
+22157,117,"Letlow, Julia",Republican,House,LA,5,messages
+22158,117,"Carter, Troy",Democrat,House,LA,2,messages
+22159,117,"Stansbury, Melanie",Democrat,House,NM,1,messages
+22160,117,"Ellzey, Jake",Republican,House,TX,6,messages
+22161,117,"Brown, Shontel",Democrat,House,OH,11,messages
+22162,117,"Carey, Mike",Republican,House,OH,15,messages
+22163,117,"Cherfilus-McCormick, Sheila",Democrat,House,FL,20,messages
+22166,117,"Flood, Mike",Republican,House,NE,1,messages
+29106,117,"Waters, Maxine",Democrat,House,CA,35,messages
+29109,117,"DeLauro, Rosa",Democrat,House,CT,3,messages
+29142,117,"REED, John F. (Jack)",Democrat,Senate,RI,S,messages
+29147,117,"SANDERS, Bernard",Other,Senate,VT,S,messages
+29312,117,"Eshoo, Anna",Democrat,House,CA,14,messages
+29339,117,"Bishop, Sanford",Democrat,House,GA,2,messages
+29345,117,"CRAPO, Michael Dean",Republican,Senate,ID,S,messages
+29373,117,"MENENDEZ, Robert",Democrat,Senate,NJ,S,messages
+29378,117,"Velazquez, Nydia",Democrat,House,NY,12,messages
+29389,117,"BROWN, Sherrod",Democrat,Senate,OH,S,messages
+29393,117,"Lucas, Frank",Republican,House,OK,3,messages
+29534,117,"WICKER, Roger F.",Republican,Senate,MS,S,messages
+29566,117,"GRAHAM, Lindsey O.",Republican,Senate,SC,S,messages
+29571,117,"Doggett, Lloyd",Democrat,House,TX,25,messages
+29573,117,"Jackson Lee, Sheila",Democrat,House,TX,18,messages
+29707,117,"Sherman, Brad",Democrat,House,CA,27,messages
+29722,117,"MORAN, Jerry",Republican,House,KS,1,messages
+29729,117,"McGovern, James",Democrat,House,MA,3,messages
+29732,117,"STABENOW, Deborah Ann",Democrat,Senate,MI,S,messages
+29741,117,"Pascrell, Bill",Democrat,House,NJ,8,messages
+29762,117,"Granger, Kay",Republican,House,TX,12,messages
+29768,117,"Smith, Adam",Democrat,House,WA,9,messages
+29776,117,"Meeks, Gregory",Democrat,House,NY,6,messages
+29778,117,"Lee, Barbara",Democrat,House,CA,9,messages
+29901,117,"Thompson, Mike",Democrat,House,CA,1,messages
+29910,117,"Simpson, Michael",Republican,House,ID,2,messages
+29911,117,"Schakowsky, Janice",Democrat,House,IL,9,messages
+29940,117,"BALDWIN, Tammy",Democrat,House,WI,2,messages
+31101,117,"Delbene, Suzan",Democrat,House,WA,1,messages
+31102,117,"Massie, Thomas",Republican,House,KY,4,messages
+31103,117,"Payne, Donald",Democrat,House,NJ,10,messages
+39301,117,"Clyburn, James",Democrat,House,SC,6,messages
+39307,117,"Scott, Bobby",Democrat,House,VA,3,messages
+39310,117,"CANTWELL, Maria E.",Democrat,Senate,WA,S,messages
+40300,117,"MURKOWSKI, Lisa",Republican,Senate,AK,S,messages
+40305,117,"CORNYN, John",Republican,Senate,TX,S,messages
+40700,117,"KLOBUCHAR, Amy",Democrat,Senate,MN,S,messages
+40702,117,"TESTER, Jon",Democrat,Senate,MT,S,messages
+40703,117,"CASEY, Robert (Bob), Jr.",Democrat,Senate,PA,S,messages
+40704,117,"WHITEHOUSE, Sheldon",Democrat,Senate,RI,S,messages
+40707,117,"BARRASSO, John A.",Republican,Senate,WY,S,messages
+40902,117,"RISCH, James",Republican,Senate,ID,S,messages
+40906,117,"SHAHEEN, Jeanne",Democrat,Senate,NH,S,messages
+40908,117,"MERKLEY, Jeff",Democrat,Senate,OR,S,messages
+40909,117,"WARNER, Mark",Democrat,Senate,VA,S,messages
+40910,117,"BENNET, Michael F.",Democrat,Senate,CO,S,messages
+40915,117,"MANCHIN, Joe, III",Democrat,Senate,WV,S,messages
+40916,117,"COONS, Christopher A.",Democrat,Senate,DE,S,messages
+41101,117,"BLUMENTHAL, Richard",Democrat,Senate,CT,S,messages
+41104,117,"PAUL, Rand",Republican,Senate,KY,S,messages
+41107,117,"HOEVEN, John",Republican,Senate,ND,S,messages
+41110,117,"LEE, Mike",Republican,Senate,UT,S,messages
+41111,117,"JOHNSON, Ron",Republican,Senate,WI,S,messages
+41301,117,"WARREN, Elizabeth",Democrat,Senate,MA,S,messages
+41302,117,"FISCHER, Debra (Deb)",Republican,Senate,NE,S,messages
+41304,117,"CRUZ, Rafael Edward (Ted)",Republican,Senate,TX,S,messages
+41305,117,"KAINE, Timothy Michael (Tim)",Democrat,Senate,VA,S,messages
+41308,117,"BOOKER, Cory Anthony",Democrat,Senate,NJ,S,messages
+41500,117,"SULLIVAN, Daniel Scott",Republican,Senate,AK,S,messages
+41502,117,"ERNST, Joni",Republican,Senate,IA,S,messages
+41504,117,"TILLIS, Thomas Roland (Thom)",Republican,Senate,NC,S,messages
+41505,117,"ROUNDS, Marion Michael (Mike)",Republican,Senate,SD,S,messages
+41703,117,"KENNEDY, John Neely",Republican,Senate,LA,S,messages
+41706,117,"SMITH, Tina",Democrat,Senate,MN,S,messages
+41707,117,"HYDE-SMITH, Cindy",Republican,Senate,MS,S,messages
+41902,117,"ROMNEY, Willard Mitt (Mitt)",Republican,Senate,UT,S,messages
+41903,117,"SCOTT, Richard Lynn (Rick)",Republican,Senate,FL,S,messages
+41905,117,"KELLY, Mark Edward",Democrat,Senate,AZ,S,messages
+42100,117,"HAGERTY, William Francis (Bill)",Republican,Senate,TN,S,messages
+42101,117,"HICKENLOOPER, John Wright",Democrat,Senate,CO,S,messages
+42102,117,"TUBERVILLE, Thomas Hawley (Tommy)",Republican,Senate,AL,S,messages
+42104,117,"PADILLA, Alejandro (Alex)",Democrat,Senate,CA,S,messages
+42105,117,"WARNOCK, Raphael Gamaliel",Democrat,Senate,GA,S,messages
+49300,117,"FEINSTEIN, Dianne",Democrat,Senate,CA,S,messages
+49308,117,"MURRAY, Patty",Democrat,Senate,WA,S,messages
+91980,117,,,,,,messages

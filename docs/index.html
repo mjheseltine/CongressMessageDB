@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SCCC — Scaled and Classified Congressional Communication</title>
+<meta name="description" content="7.8 million tweets, Facebook posts and newsletter sentences by members of Congress (2009–2022), classified by purpose and scaled by partisanship. Explore, cite and download.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBFBF9; --panel:#F1F2EE; --ink:#1F2430; --muted:#5F6672; --rule:#D8DBE0;
+    --dem:#3557A6; --rep:#A63535; --tw:#bfdbf7; --fb:#1f7a8c; --nl:#022b3a; --bar-edge:rgba(0,0,0,.28);
+    --focus:#3557A6;
+    --serif:"Newsreader", Georgia, "Times New Roman", serif;
+    --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15171C; --panel:#1E2128; --ink:#E8E9EC; --muted:#A3A8B3; --rule:#33373F;
+      --dem:#7B94DB; --rep:#D47070; --tw:#bfdbf7; --fb:#1f7a8c; --nl:#022b3a; --bar-edge:rgba(255,255,255,.45); --focus:#7B94DB;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171C; --panel:#1E2128; --ink:#E8E9EC; --muted:#A3A8B3; --rule:#33373F;
+    --dem:#7B94DB; --rep:#D47070; --tw:#bfdbf7; --fb:#1f7a8c; --nl:#022b3a; --bar-edge:rgba(255,255,255,.45); --focus:#7B94DB;
+  }
+  *,*::before,*::after{box-sizing:inherit}
+  html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 56px)}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:18px;line-height:1.55}
+  a{color:inherit;text-decoration-color:var(--muted);text-underline-offset:3px}
+  a:hover{text-decoration-color:var(--ink)}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  .prose{max-width:66ch}
+
+  header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--rule)}
+  header.top .wrap{display:flex;align-items:baseline;gap:20px;height:56px;font-family:var(--sans);font-size:15px}
+  header.top .brand{font-weight:600;letter-spacing:.01em;margin-right:auto;text-decoration:none}
+  header.top nav a{text-decoration:none;color:var(--muted)}
+  header.top nav a:hover{color:var(--ink)}
+  header.top nav a+a{margin-left:16px}
+
+  .masthead{padding:56px 0 40px}
+  .masthead h1{font-family:var(--serif);font-weight:500;font-size:clamp(34px,5vw,54px);line-height:1.08;margin:0 0 18px;max-width:20ch;letter-spacing:-.01em}
+  .masthead p.lede{font-size:21px;margin:0;max-width:58ch}
+  .masthead p.authors{font-family:var(--sans);font-size:15px;color:var(--muted);margin:0 0 16px}
+  .demo-note{font-family:var(--sans);font-size:14px;background:var(--panel);border-left:3px solid var(--nl);padding:10px 14px;margin:20px 0 0;max-width:66ch}
+
+  section{padding:40px 0;border-top:1px solid var(--rule)}
+  section h2{font-weight:500;font-size:30px;margin:0 0 6px;letter-spacing:-.01em}
+  section p.sub{color:var(--muted);margin:0 0 24px;font-size:17px;max-width:66ch}
+  h3{font-family:var(--sans);font-weight:600;font-size:15px;margin:32px 0 10px}
+
+  /* filters */
+  .filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px 14px;font-family:var(--sans);font-size:14px}
+  .filters label{display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+  .filters .wide{grid-column:span 2}
+  select,input[type=search],button{font:inherit;font-family:var(--sans);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:8px 10px;min-height:38px}
+  select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+  button{cursor:pointer}
+  button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  button.quiet{color:var(--muted)}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px;font-family:var(--sans);font-size:14px;color:var(--muted)}
+
+  /* results */
+  .spectrum{margin:28px 0 8px}
+  .spectrum svg{width:100%;height:auto;display:block;max-width:600px}
+  .kpis{display:flex;flex-wrap:wrap;gap:8px 40px;font-family:var(--sans);margin:18px 0 6px}
+  .kpis div{display:flex;flex-direction:column}
+  .kpis b{font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .kpis span{font-size:13px;color:var(--muted)}
+
+  .bars{max-width:760px;font-family:var(--sans)}
+  .bar-row{display:grid;grid-template-columns:150px 1fr;gap:0 12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule)}
+  .bar-row:last-child{border-bottom:0}
+  .bar-label{font-size:14px;text-align:right}
+  .bar-set{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .bar{display:flex;align-items:center;gap:8px;min-width:0}
+  .bar i{display:block;height:11px;border-radius:2px;flex:0 0 auto;max-width:calc(100% - 52px);box-shadow:inset 0 0 0 1px var(--bar-edge)}
+  .bar span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  @media (max-width:640px){ .bar-row{grid-template-columns:1fr;gap:4px} .bar-label{text-align:left} }
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--sans);font-size:13px;color:var(--muted);margin:6px 0 0}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;box-shadow:inset 0 0 0 1px var(--bar-edge)}
+
+  .tablewrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;font-family:var(--sans);font-size:14px;width:100%;min-width:640px;font-variant-numeric:tabular-nums}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap}
+  th{font-weight:600;color:var(--muted);position:sticky;top:0;background:var(--bg)}
+  td.num,th.num{text-align:right}
+  td.name{white-space:normal;min-width:180px}
+  .party-D{color:var(--dem)} .party-R{color:var(--rep)}
+  .empty{font-family:var(--sans);color:var(--muted);padding:20px 0}
+
+  /* download + cite */
+  .files td a{text-decoration:none;border-bottom:1px solid var(--rule)}
+  pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;line-height:1.5;background:var(--panel);padding:14px 16px;border-radius:4px;overflow-x:auto;max-width:100%}
+  dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;font-size:17px;max-width:66ch}
+  dt{color:var(--muted)} dd{margin:0}
+  footer{padding:32px 0 48px;color:var(--muted);font-family:var(--sans);font-size:14px;border-top:1px solid var(--rule)}
+  @media (max-width:640px){
+    body{font-size:17px}
+    .masthead{padding:36px 0 28px}
+    .filters .wide{grid-column:span 1}
+    dl{grid-template-columns:1fr;gap:2px 0} dt{margin-top:8px}
+  }
+  @media (prefers-reduced-motion:no-preference){ .spectrum .marker{transition:transform .35s ease} }
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="#top">SCCC</a>
+  <nav><a href="#about">About</a><a href="#explore">Explore</a><a href="#download">Download</a><a href="#cite">Cite</a></nav>
+</div></header>
+
+<main class="wrap" id="top">
+  <div class="masthead">
+    <h1>Scaled and Classified Congressional Communication</h1>
+    <p class="authors">Michael Kistner, Michael Heseltine, Robert Alvarez, Maya Fitch, Lucas Lothamer and Elizabeth Simas · <em>American Political Science Review</em>, 2026</p>
+    <p class="lede">A dataset of over 7 million tweets, Facebook posts, and email newsletters sent by members of Congress between 2009 and 2022, classified by purpose and placed on a left-right partisan scale.</p>
+    <p class="demo-note" id="demo-note" hidden></p>
+  </div>
+
+  <section id="about">
+    <h2>About the data</h2>
+    <div class="prose">
+      <p>The dataset covers the 111th through 117th Congresses (2009–2022) and 1,034 senators and representatives. Tweets were collected from the Twitter API, Facebook posts through CrowdTangle, and email newsletters from Lindsey Cormack's <a href="https://www.dcinbox.com">DCinbox</a> archive. Because the platforms' terms of use do not permit redistribution of message text, the public files carry identifiers (tweet ID, post URL, newsletter ID) rather than text; researchers with API access can rehydrate messages from those identifiers. For more questions about data access, please email one of the authors.</p>
+      <p>Each message was coded into six categories drawn from Mayhew (1974), Fenno (1978) and Russell (2018): advertising, credit claiming, position taking, constituent service, negative partisanship and bipartisanship. Categories are not mutually exclusive. Labels come from BERTweet classifiers trained on roughly 43,000 hand-coded messages; out-of-sample macro F1 ranges from 0.77 to 0.95 depending on category and platform.</p>
+      <p>The partisan score places each message on a −1 (most Democratic) to +1 (most Republican) scale using a class affinity model fit separately for each Congress. Partisan extremity is the absolute value of that score. Validation against DW-NOMINATE, CF scores, presidential support scores and human coders is reported in the article and its supplementary material.</p>
+      <p>Contact: <a href="mailto:mkistner@tamu.edu">mkistner@tamu.edu</a> · <a href="mailto:michael.heseltine@sociology.ox.ac.uk">michael.heseltine@sociology.ox.ac.uk</a>. Code for this site and the release pipeline is on <a href="https://github.com/mjheseltine/CongressMessageDB">GitHub</a>.</p>
+    </div>
+  </section>
+
+  <section id="explore">
+    <h2>Explore</h2>
+    <p class="sub">Filter by platform, Congress, party, chamber, state or member. Results are message-weighted: proportions are the share of messages in each category and the partisan score is the mean across scored messages. A newsletter counts toward a category if any of its sentences was classified into it (the classifiers ran at the sentence level), and its partisan score is the mean across its sentences.</p>
+
+    <div class="filters">
+      <label>Platform<select id="f-platform"><option value="">All platforms</option></select></label>
+      <label>From Congress<select id="f-from"></select></label>
+      <label>To Congress<select id="f-to"></select></label>
+      <label>Party<select id="f-party"><option value="">All parties</option></select></label>
+      <label>Chamber<select id="f-chamber"><option value="">Both chambers</option></select></label>
+      <label>State<select id="f-state"><option value="">All states</option></select></label>
+      <label class="wide">Member<input type="search" id="f-member" placeholder="Name or ICPSR ID" autocomplete="off"></label>
+    </div>
+    <div class="actions">
+      <button class="primary" id="btn-download">Download these rows as CSV</button>
+      <button class="quiet" id="btn-reset">Reset filters</button>
+      <span id="row-count"></span>
+    </div>
+
+    <div id="results">
+      <div class="spectrum" id="spectrum"></div>
+      <div class="kpis" id="kpis"></div>
+
+      <h3>Share of messages by category</h3>
+      <div class="bars" id="bars"></div>
+      <div class="legend" id="legend"></div>
+
+      <h3>By Congress</h3>
+      <div class="tablewrap"><table id="tbl-congress"></table></div>
+
+      <h3>By member</h3>
+      <div class="tablewrap"><table id="tbl-members"></table></div>
+      <p class="empty" id="members-note"></p>
+    </div>
+  </section>
+
+  <section id="download">
+    <h2>Download</h2>
+    <p class="sub">Message-level files contain no message text. Each row is one tweet, one Facebook post or one newsletter, with its platform identifier, date, member ICPSR ID, Congress, engagement counts (social media only), the eight classifier labels and the two partisanship scores. Newsletters were classified sentence by sentence; the newsletter files mark a category if any sentence carries it, and a separate sentence-level file is provided for finer analysis. Join to <a href="members.csv">members.csv</a> on MemberICPSR and Congress for name, party, chamber, state and district.</p>
+    <div class="tablewrap"><table class="files" id="tbl-files"></table></div>
+    <h3>Member and summary tables</h3>
+    <dl>
+      <dt><a href="summary.csv">summary.csv</a></dt><dd>Member × Congress × platform aggregates — the table behind the explorer above.</dd>
+      <dt><a href="members.csv">members.csv</a></dt><dd>One row per member-session with name, party, chamber, state and district.</dd>
+      <dt><a href="codebook.md">Codebook</a></dt><dd>Variable definitions, classifier and scaling details, known limitations.</dd>
+    </dl>
+  </section>
+
+  <section id="cite">
+    <h2>Cite</h2>
+    <p class="sub">If you use the data, please cite the article and the dataset.</p>
+    <div class="prose">
+      <p>Kistner, Michael, Michael Heseltine, Robert Alvarez, Maya Fitch, Lucas Lothamer, and Elizabeth Simas. 2026. "Measuring Partisanship and Representation in Online Congressional Communications." <em>American Political Science Review</em>, 1–18. <a href="https://doi.org/10.1017/S0003055426101841">doi:10.1017/S0003055426101841</a></p>
+      <p>Kistner, Michael, Michael Heseltine, Robert Alvarez, Maya Fitch, Lucas Lothamer, and Elizabeth Simas. 2026. "Replication Data for: Measuring Partisanship and Representation in Online Congressional Communications." Harvard Dataverse. <a href="https://doi.org/10.7910/DVN/19MIBB">doi:10.7910/DVN/19MIBB</a></p>
+    </div>
+<pre>@article{kistner2026sccc,
+  title   = {Measuring Partisanship and Representation in Online Congressional Communications},
+  author  = {Kistner, Michael and Heseltine, Michael and Alvarez, Robert and Fitch, Maya and Lothamer, Lucas and Simas, Elizabeth},
+  journal = {American Political Science Review},
+  year    = {2026},
+  pages   = {1--18},
+  doi     = {10.1017/S0003055426101841}
+}</pre>
+  </section>
+
+</main>
+<footer><div class="wrap">Data released under CC BY 4.0. Site last built <span id="built">—</span>.</div></footer>
+
+<!-- For the deployed site these two blocks stay empty and the page fetches summary.csv / manifest.json
+     from the same folder. A build step can inline them here to make a single-file demo. -->
+<script id="summary-data" type="text/csv"></script>
+<script id="manifest-data" type="application/json"></script>
+
+<script>
+// ===== Configuration ======================================================
+// Where the bulk files live. Filename is appended, e.g. DATA_BASE_URL + "twitter_117.csv.gz".
+//   Cloudflare R2:   "https://pub-xxxxxxxx.r2.dev/"
+//   GitHub Releases: "https://github.com/ORG/REPO/releases/download/v1.0/"
+const DATA_BASE_URL = "https://github.com/mjheseltine/CongressMessageDB/releases/download/v1.0/";
+
+const CATS = [["Advertising","Advertising"],["CreditClaiming","Credit claiming"],["PositionTaking","Position taking"],
+              ["ConstituentService","Constituent service"],["NegativePartisan","Negative partisanship"],["Bipartisan","Bipartisanship"]];
+const PLATFORM_COLOR = {Twitter:"var(--tw)", Facebook:"var(--fb)", Newsletters:"var(--nl)"};
+const YEARS = {111:"2009–10",112:"2011–12",113:"2013–14",114:"2015–16",115:"2017–18",116:"2019–20",117:"2021–22"};
+
+// ===== Data loading =======================================================
+function parseCSV(text){
+  const rows=[]; let row=[], field="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){field+='"';i++;} else q=false; } else field+=c; }
+    else if(c==='"') q=true;
+    else if(c===","){ row.push(field); field=""; }
+    else if(c==="\n"){ row.push(field); rows.push(row); row=[]; field=""; }
+    else if(c!=="\r") field+=c;
+  }
+  if(field.length||row.length){ row.push(field); rows.push(row); }
+  const head=rows.shift();
+  const numeric=h=>/^(n_|mean_|p_)/.test(h)||h==="Congress"||h==="MemberICPSR";
+  return rows.filter(r=>r.length===head.length).map(r=>{
+    const o={}; head.forEach((h,i)=>{ const v=r[i]; o[h]=numeric(h) ? (v===""?NaN:+v) : v; }); return o;
+  });
+}
+async function loadText(inlineId, url){
+  const inline=document.getElementById(inlineId).textContent.trim();
+  if(inline) return {text:inline, demo:true};
+  const r=await fetch(url); if(!r.ok) throw new Error(url+" "+r.status);
+  return {text:await r.text(), demo:false};
+}
+
+// ===== State ==============================================================
+let DATA=[], MANIFEST=null;
+const $=id=>document.getElementById(id);
+const fmtN=n=>n.toLocaleString("en-US");
+const fmtP=x=>isFinite(x)?(100*x).toFixed(1)+"%":"—";
+const fmtS=x=>isFinite(x)?(x>0?"+":"")+x.toFixed(2):"—";
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function fill(sel, values, keepFirst=true){
+  const first=keepFirst?sel.options[0].outerHTML:"";
+  sel.innerHTML=first+values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+}
+function initFilters(){
+  const uniq=k=>[...new Set(DATA.map(r=>r[k]).filter(v=>v!==""&&v!=null))].sort();
+  fill($("f-platform"), ["Twitter","Facebook","Newsletters"].filter(p=>uniq("Platform").includes(p)));
+  const cong=uniq("Congress");
+  fill($("f-from"), cong.map(c=>`${c} (${YEARS[c]||""})`), false);
+  fill($("f-to"), cong.map(c=>`${c} (${YEARS[c]||""})`), false);
+  $("f-to").selectedIndex=cong.length-1;
+  fill($("f-party"), uniq("MemberParty"));
+  fill($("f-chamber"), uniq("MemberChamber"));
+  fill($("f-state"), uniq("MemberState"));
+  document.querySelectorAll(".filters select, .filters input").forEach(el=>el.addEventListener("input", render));
+  $("btn-reset").addEventListener("click", ()=>{ document.querySelectorAll(".filters select").forEach(s=>s.selectedIndex=0); $("f-to").selectedIndex=cong.length-1; $("f-member").value=""; render(); });
+  $("btn-download").addEventListener("click", downloadFiltered);
+}
+function selected(){
+  const c=s=>parseInt(s.value);
+  let from=c($("f-from")), to=c($("f-to")); if(from>to) [from,to]=[to,from];
+  return {platform:$("f-platform").value, from, to, party:$("f-party").value, chamber:$("f-chamber").value,
+          state:$("f-state").value, member:$("f-member").value.trim().toLowerCase()};
+}
+function filtered(){
+  const s=selected();
+  return DATA.filter(r=>
+    (!s.platform||r.Platform===s.platform) && r.Congress>=s.from && r.Congress<=s.to &&
+    (!s.party||r.MemberParty===s.party) && (!s.chamber||r.MemberChamber===s.chamber) &&
+    (!s.state||r.MemberState===s.state) &&
+    (!s.member||String(r.MemberName||"").toLowerCase().includes(s.member)||String(r.MemberICPSR)===s.member));
+}
+
+// ===== Aggregation ========================================================
+function agg(rows){
+  const a={n:0,ns:0,score:0,ext:0,members:new Set(),p:{}};
+  CATS.forEach(([k])=>a.p[k]=0);
+  for(const r of rows){
+    a.n+=r.n_messages; a.ns+=r.n_scored; a.members.add(r.MemberICPSR);
+    if(isFinite(r.mean_partisan_score)){ a.score+=r.mean_partisan_score*r.n_scored; a.ext+=r.mean_partisan_extremity*r.n_scored; }
+    CATS.forEach(([k])=>{ a.p[k]+= (r["p_"+k]||0)*r.n_messages; });
+  }
+  a.score=a.ns?a.score/a.ns:NaN; a.ext=a.ns?a.ext/a.ns:NaN;
+  CATS.forEach(([k])=>a.p[k]=a.n?a.p[k]/a.n:NaN);
+  return a;
+}
+
+// ===== Rendering ==========================================================
+function renderSpectrum(rows, all){
+  const D=agg(rows.filter(r=>r.MemberParty==="Democrat")), R=agg(rows.filter(r=>r.MemberParty==="Republican"));
+  const W=520,H=96,L=34,Rt=34,y=46,w=W-L-Rt, x=v=>L+(v+1)/2*w;
+  const marker=(v,color,label,dy)=>isFinite(v)?`
+    <g class="marker" transform="translate(${x(v).toFixed(1)},0)">
+      <line x1="0" x2="0" y1="${y-14}" y2="${y+14}" stroke="${color}" stroke-width="2.5"/>
+      <text x="0" y="${y+dy}" text-anchor="middle" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="13" font-weight="600" fill="${color}">${label} ${fmtS(v)}</text></g>`:"";
+  $("spectrum").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mean partisan score of the selected messages">
+    <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="var(--dem)"/><stop offset=".5" stop-color="var(--rule)"/><stop offset="1" stop-color="var(--rep)"/></linearGradient></defs>
+    <rect x="${L}" y="${y-5}" width="${w}" height="10" rx="5" fill="url(#g)"/>
+    ${[-1,-.5,0,.5,1].map(v=>`<line x1="${x(v)}" x2="${x(v)}" y1="${y+9}" y2="${y+15}" stroke="var(--muted)"/><text x="${x(v)}" y="${y+30}" text-anchor="middle" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="12" fill="var(--muted)">${v>0?"+"+v:v}</text>`).join("")}
+    <text x="${L}" y="14" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="12" fill="var(--muted)">Democratic</text>
+    <text x="${W-Rt}" y="14" text-anchor="end" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="12" fill="var(--muted)">Republican</text>
+    ${isFinite(all.score)?`<line x1="${x(all.score)}" x2="${x(all.score)}" y1="${y-11}" y2="${y+11}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 2"/>`:""}
+    ${marker(D.score,"var(--dem)","D",-20)}${marker(R.score,"var(--rep)","R",-20)}
+  </svg>`;
+}
+function renderKPIs(a){
+  $("kpis").innerHTML=[[fmtN(a.n),"messages"],[fmtN(a.members.size),"members"],[fmtS(a.score),"mean partisan score"],[isFinite(a.ext)?a.ext.toFixed(2):"—","mean extremity"]]
+    .map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("");
+}
+function renderBars(rows){
+  const plats=["Twitter","Facebook","Newsletters"].filter(p=>rows.some(r=>r.Platform===p));
+  const per=Object.fromEntries(plats.map(p=>[p,agg(rows.filter(r=>r.Platform===p))]));
+  const max=Math.max(.05,...plats.flatMap(p=>CATS.map(([k])=>per[p].p[k]||0)));
+  $("bars").innerHTML=CATS.map(([k,label])=>`<div class="bar-row"><div class="bar-label">${label}</div><div class="bar-set">${
+    plats.map(p=>{ const v=per[p].p[k]||0; return `<div class="bar"><i style="width:${(100*v/max).toFixed(1)}%;background:${PLATFORM_COLOR[p]}"></i><span>${fmtP(v)}</span></div>`; }).join("")
+  }</div></div>`).join("");
+  $("legend").innerHTML=plats.length>1?plats.map(p=>`<span><i style="background:${PLATFORM_COLOR[p]}"></i>${p}</span>`).join(""):"";
+}
+function renderCongressTable(rows){
+  const cong=[...new Set(rows.map(r=>r.Congress))].sort();
+  let h=`<thead><tr><th>Congress</th><th>Years</th><th class="num">Messages</th><th class="num">Members</th><th class="num">Mean score</th><th class="num">Mean extremity</th><th class="num">Negative partisan</th><th class="num">Position taking</th><th class="num">Credit claiming</th></tr></thead><tbody>`;
+  for(const c of cong){ const a=agg(rows.filter(r=>r.Congress===c));
+    h+=`<tr><td>${c}</td><td>${YEARS[c]||""}</td><td class="num">${fmtN(a.n)}</td><td class="num">${fmtN(a.members.size)}</td><td class="num">${fmtS(a.score)}</td><td class="num">${isFinite(a.ext)?a.ext.toFixed(2):"—"}</td><td class="num">${fmtP(a.p.NegativePartisan)}</td><td class="num">${fmtP(a.p.PositionTaking)}</td><td class="num">${fmtP(a.p.CreditClaiming)}</td></tr>`; }
+  $("tbl-congress").innerHTML=h+"</tbody>";
+}
+function renderMemberTable(rows){
+  const LIMIT=300, sorted=[...rows].sort((a,b)=>b.n_messages-a.n_messages), show=sorted.slice(0,LIMIT);
+  let h=`<thead><tr><th>Member</th><th>Party</th><th>Chamber</th><th>State</th><th>Congress</th><th>Platform</th><th class="num">Messages</th><th class="num">Score</th><th class="num">Extremity</th><th class="num">Neg. partisan</th><th class="num">Position taking</th><th class="num">Credit claiming</th><th class="num">Constituent service</th></tr></thead><tbody>`;
+  for(const r of show){ const pc=r.MemberParty==="Democrat"?"party-D":r.MemberParty==="Republican"?"party-R":"";
+    h+=`<tr><td class="name">${esc(r.MemberName||"(no name)")} <span style="color:var(--muted)">${r.MemberICPSR}</span></td><td class="${pc}">${esc(r.MemberParty)}</td><td>${esc(r.MemberChamber)}</td><td>${esc(r.MemberState)}${r.MemberDistrict&&r.MemberDistrict!=="S"?"-"+esc(r.MemberDistrict):""}</td><td>${r.Congress}</td><td>${esc(r.Platform)}</td><td class="num">${fmtN(r.n_messages)}</td><td class="num">${fmtS(r.mean_partisan_score)}</td><td class="num">${isFinite(r.mean_partisan_extremity)?r.mean_partisan_extremity.toFixed(2):"—"}</td><td class="num">${fmtP(r.p_NegativePartisan)}</td><td class="num">${fmtP(r.p_PositionTaking)}</td><td class="num">${fmtP(r.p_CreditClaiming)}</td><td class="num">${fmtP(r.p_ConstituentService)}</td></tr>`; }
+  $("tbl-members").innerHTML=h+"</tbody>";
+  $("members-note").textContent=rows.length>LIMIT?`Showing the ${LIMIT} member-sessions with the most messages of ${fmtN(rows.length)} matching. Download the CSV for all of them.`:"";
+}
+function render(){
+  const rows=filtered(); const a=agg(rows);
+  $("row-count").textContent=`${fmtN(rows.length)} member-session rows`;
+  if(!rows.length){ $("results").style.display="none"; $("row-count").textContent="No rows match these filters."; return; }
+  $("results").style.display="";
+  renderSpectrum(rows,a); renderKPIs(a); renderBars(rows); renderCongressTable(rows); renderMemberTable(rows);
+}
+function downloadFiltered(){
+  const rows=filtered(); if(!rows.length) return;
+  const cols=Object.keys(DATA[0]);
+  const q=v=>{ v=v==null?"":String(v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+  const csv=[cols.join(",")].concat(rows.map(r=>cols.map(c=>q(r[c])).join(","))).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"}), a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="sccc_summary_filtered.csv"; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function renderFiles(){
+  const mb=b=>b>=1e6?(b/1e6).toFixed(1)+" MB":(b/1e3).toFixed(0)+" KB";
+  const order={Twitter:0,Facebook:1,Newsletters:2,"Newsletter sentences":3};
+  const files=[...MANIFEST.files].sort((a,b)=>order[a.platform]-order[b.platform]||a.congress-b.congress);
+  let h=`<thead><tr><th>Platform</th><th>Congress</th><th>Years</th><th class="num">Rows</th><th>CSV (gzip)</th><th>Parquet</th></tr></thead><tbody>`;
+  for(const f of files){
+    h+=`<tr><td>${f.platform}</td><td>${f.congress}</td><td>${YEARS[f.congress]||""}</td><td class="num">${fmtN(f.rows)}</td>
+      <td><a href="${DATA_BASE_URL}${f.csv_gz.file}">${f.csv_gz.file}</a> <span style="color:var(--muted)">${mb(f.csv_gz.bytes)}</span></td>
+      <td><a href="${DATA_BASE_URL}${f.parquet.file}">${f.parquet.file}</a> <span style="color:var(--muted)">${mb(f.parquet.bytes)}</span></td></tr>`;
+  }
+  $("tbl-files").innerHTML=h+"</tbody>";
+  $("built").textContent=MANIFEST.generated+(MANIFEST.version?" (release "+MANIFEST.version+")":"");
+}
+
+(async function init(){
+  try{
+    const s=await loadText("summary-data","summary.csv"); DATA=parseCSV(s.text);
+    const m=await loadText("manifest-data","manifest.json"); MANIFEST=JSON.parse(m.text);
+    if(s.demo){ const t=["Twitter","Facebook","Newsletters"].reduce((a,p)=>a+(MANIFEST.totals[p]||0),0);
+      $("demo-note").textContent=`Demo build: the explorer below is running on a ${fmtN(t)}-message sample, not the full dataset. Download links point at placeholders.`; $("demo-note").hidden=false; }
+    initFilters(); render(); renderFiles();
+  }catch(e){
+    $("results").innerHTML=`<p class="empty">Couldn't load summary.csv or manifest.json (${esc(e.message)}). Run prepare_data.py so both files sit next to this page.</p>`;
+  }
+})();
+</script>
+</body>
+</html>
