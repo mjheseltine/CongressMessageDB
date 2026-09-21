@@ -305,7 +305,7 @@ def main():
     members.to_csv(os.path.join(args.out, "members.csv"), index=False)
     members.to_csv(os.path.join(args.site, "members.csv"), index=False)
     summary.to_csv(os.path.join(args.site, "summary.csv"), index=False)
-    with open(os.path.join(args.site, "manifest.json"), "w") as f:
+    with open(os.path.join(args.site, "manifest.json"), "w", encoding="utf-8") as f:
         json.dump({
             "version": args.version,
             "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d"),
