@@ -359,7 +359,7 @@ function renderCongressTable(rows){
   $("tbl-congress").innerHTML=h+"</tbody>";
 }
 function renderMemberTable(rows){
-  const LIMIT=300, sorted=[...rows].sort((a,b)=>b.n_messages-a.n_messages), show=sorted.slice(0,LIMIT);
+  const LIMIT=50, sorted=[...rows].sort((a,b)=>b.n_messages-a.n_messages), show=sorted.slice(0,LIMIT);
   let h=`<thead><tr><th>Member</th><th>Party</th><th>Chamber</th><th>State</th><th>Congress</th><th>Platform</th><th class="num">Messages</th><th class="num">Score</th><th class="num">Extremity</th><th class="num">Neg. partisan</th><th class="num">Position taking</th><th class="num">Credit claiming</th><th class="num">Constituent service</th></tr></thead><tbody>`;
   for(const r of show){ const pc=r.MemberParty==="Democrat"?"party-D":r.MemberParty==="Republican"?"party-R":"";
     h+=`<tr><td class="name">${esc(r.MemberName||"(no name)")} <span style="color:var(--muted)">${r.MemberICPSR}</span></td><td class="${pc}">${esc(r.MemberParty)}</td><td>${esc(r.MemberChamber)}</td><td>${esc(r.MemberState)}${r.MemberDistrict&&r.MemberDistrict!=="S"?"-"+esc(r.MemberDistrict):""}</td><td>${r.Congress}</td><td>${esc(r.Platform)}</td><td class="num">${fmtN(r.n_messages)}</td><td class="num">${fmtS(r.mean_partisan_score)}</td><td class="num">${isFinite(r.mean_partisan_extremity)?r.mean_partisan_extremity.toFixed(2):"—"}</td><td class="num">${fmtP(r.p_NegativePartisan)}</td><td class="num">${fmtP(r.p_PositionTaking)}</td><td class="num">${fmtP(r.p_CreditClaiming)}</td><td class="num">${fmtP(r.p_ConstituentService)}</td></tr>`; }
