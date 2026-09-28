@@ -121,6 +121,36 @@ def read_platform(path, platform):
     return df
 
 
+# Surnames with a capital letter mid-word that plain title-casing would lose (all-caps source names only).
+MIDCAP_SURNAMES = {
+    "defazio": "DeFazio", "degette": "DeGette", "delauro": "DeLauro", "delbene": "DelBene", "demint": "DeMint",
+    "desantis": "DeSantis", "desaulnier": "DeSaulnier", "desjarlais": "DesJarlais", "lahood": "LaHood",
+    "lamalfa": "LaMalfa", "latourette": "LaTourette", "laturner": "LaTurner", "lobiondo": "LoBiondo",
+    "macarthur": "MacArthur", "lalota": "LaLota", "deremer": "DeRemer",
+}
+
+
+def normalize_name(name):
+    """'CASSIDY, Bill' -> 'Cassidy, Bill'; 'MCCARTHY, Kevin' -> 'McCarthy, Kevin'; 'O'ROURKE, Beto' -> 'O'Rourke, Beto'.
+    Names whose surname is not all upper-case are returned unchanged."""
+    if not isinstance(name, str) or "," not in name:
+        return name
+    last, rest = name.split(",", 1)
+    if not last.strip().isupper():
+        return name
+    words = []
+    for w in last.strip().split():
+        key = w.lower()
+        if key in MIDCAP_SURNAMES:
+            words.append(MIDCAP_SURNAMES[key])
+            continue
+        t = w.title()                                   # handles hyphens, apostrophes and accents
+        if t.startswith("Mc") and len(t) > 2:
+            t = "Mc" + t[2].upper() + t[3:]
+        words.append(t)
+    return " ".join(words) + "," + rest
+
+
 def mode_or_first(s):
     s = s.dropna()
     if s.empty:
@@ -183,6 +213,9 @@ def build_members(frames, voteview_path=None):
         log(f"  {n_vv:,} of {len(members):,} member-sessions matched Voteview")
 
     members = members[["MemberICPSR", "Congress"] + MEMBER_COLS + ["Source"]]
+    before = members["MemberName"].astype(str)
+    members["MemberName"] = before.map(normalize_name)
+    log(f"  normalized capitalization of {(before != members['MemberName'].astype(str)).sum():,} member-session names")
     log("Computing member-session aggregates")
     members = members.merge(member_aggregates(frames), on=["MemberICPSR", "Congress"], how="left")
     return members.sort_values(["Congress", "MemberICPSR"]).reset_index(drop=True)
