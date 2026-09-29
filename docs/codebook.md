@@ -1,6 +1,6 @@
 # SCCC codebook
 
-Scaled and Classified Congressional Communication (SCCC), public release.
+Scaled and Classified Congressional Communications (SCCC), public release.
 Source article: Kistner, Heseltine, Alvarez, Fitch, Lothamer and Simas (2026), *American Political Science Review*, doi:10.1017/S0003055426101841.
 
 The public files contain **no message text**. Each row carries a platform identifier so that researchers with their own API access can retrieve the underlying message.
@@ -101,6 +101,17 @@ To aggregate across rows, weight proportions by `n_messages` and scores by `n_sc
 - Facebook engagement counts for the earliest years are frequently zero because CrowdTangle did not return them.
 - Member attributes come from the project's member-session file, which was checked against the `unitedstates/congress-legislators` reference. Messages from accounts posted before the member took office are excluded.
 - Newsletter-level category flags use an any-sentence rule, so they rise with newsletter length; sentence-level shares are in `newsletter_sentences_*`.
+
+## Distinctive words (website only)
+
+The explorer's word lists are not part of the downloadable data. They come from `words_*.json`, which
+hold, for each platform × Congress × party × chamber cell, the number of messages containing each of
+the few thousand most common unigrams and bigrams (URLs, @-mentions and stop words removed; `#` stripped
+from hashtags), overall, within each of the six main categories, and within seven bands of the partisan
+score (cut at ±0.15, ±0.45 and ±0.75). Terms found in fewer than 25 messages are excluded. The site sums
+the cells matching the current filters and ranks terms by the Monroe, Colaresi and Quinn (2008)
+log-odds ratio with an informative Dirichlet prior, comparing messages in a category or band with the
+rest of the selection. Messages by members with party `Other` are not included in these counts.
 
 ## Licence
 

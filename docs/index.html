@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SCCC — Scaled and Classified Congressional Communication</title>
+<title>SCCC — Scaled and Classified Congressional Communications</title>
 <meta name="description" content="7.8 million tweets, Facebook posts and newsletter sentences by members of Congress (2009–2022), classified by purpose and scaled by partisanship. Explore, cite and download.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -75,15 +75,23 @@
   .kpis b{font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
   .kpis span{font-size:13px;color:var(--muted)}
 
-  .bars{max-width:760px;font-family:var(--sans)}
-  .bar-row{display:grid;grid-template-columns:150px 1fr;gap:0 12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule)}
+  .bars{max-width:1040px;font-family:var(--sans)}
+  .bar-row{display:grid;grid-template-columns:150px minmax(180px,1fr) minmax(220px,1.15fr);gap:0 14px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule)}
+  .bars.no-words .bar-row{grid-template-columns:150px 1fr;max-width:760px}
+  .bars.no-words .bar-terms{display:none}
+  .bar-terms{font-size:13px;line-height:1.55;color:var(--muted);min-width:0;padding-left:6px;border-left:1px solid var(--rule)}
+  .bar-terms .t{white-space:nowrap} .bar-terms .t.top{color:var(--ink);font-weight:500}
+  .bar-terms .sep{opacity:.45;margin:0 2px}
+  .band-info{font-family:var(--sans);font-size:13px;color:var(--muted);max-width:600px;margin:2px 0 0;min-height:1.6em;line-height:1.55}
+  .band-info b{color:var(--ink);font-weight:600}
+  .spectrum .band{cursor:pointer} .spectrum .band:hover{fill-opacity:.35}
   .bar-row:last-child{border-bottom:0}
   .bar-label{font-size:14px;text-align:right}
   .bar-set{display:flex;flex-direction:column;gap:3px;min-width:0}
   .bar{display:flex;align-items:center;gap:8px;min-width:0}
   .bar i{display:block;height:11px;border-radius:2px;flex:0 0 auto;max-width:calc(100% - 52px);box-shadow:inset 0 0 0 1px var(--bar-edge)}
   .bar span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-  @media (max-width:640px){ .bar-row{grid-template-columns:1fr;gap:4px} .bar-label{text-align:left} }
+  @media (max-width:760px){ .bar-row,.bars.no-words .bar-row{grid-template-columns:1fr;gap:4px} .bar-label{text-align:left} .bar-terms{padding:2px 0 0;border-left:0} }
   .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--sans);font-size:13px;color:var(--muted);margin:6px 0 0}
   .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;box-shadow:inset 0 0 0 1px var(--bar-edge)}
 
@@ -120,7 +128,7 @@
 
 <main class="wrap" id="top">
   <div class="masthead">
-    <h1>Scaled and Classified Congressional Communication</h1>
+    <h1>Scaled and Classified Congressional Communications</h1>
     <p class="authors">Michael Kistner, Michael Heseltine, Robert Alvarez, Maya Fitch, Lucas Lothamer and Elizabeth Simas</p>
     <p class="lede">A dataset of over 7 million tweets, Facebook posts, and email newsletters sent by members of Congress between 2009 and 2022, classified by purpose and placed on a left-right partisan scale.</p>
     <p class="demo-note" id="demo-note" hidden></p>
@@ -139,7 +147,7 @@
 
   <section id="explore">
     <h2>Explore</h2>
-    <p class="sub">Filter by platform, Congress, party, chamber, state or member. Results are message-weighted: proportions are the share of messages in each category and the partisan score is the mean across scored messages. Newsletter figures are computed per sentence, the unit on which the classifiers and scaling model ran, so category shares are comparable across platforms.</p>
+    <p class="sub">Filter by platform, Congress, party, chamber or member. Results are message-weighted: proportions are the share of messages in each category and the partisan score is the mean across scored messages. Newsletter figures are computed per sentence, the unit on which the classifiers and scaling model ran, so category shares are comparable across platforms. The distinctive words beside each category, and beneath the partisan scale, are the terms most over-represented in those messages relative to the rest of the current selection; they respond to the platform, Congress, party and chamber filters and are hidden when the results are narrowed to a member.</p>
 
     <div class="filters">
       <label>Platform<select id="f-platform"><option value="">All platforms</option></select></label>
@@ -147,7 +155,6 @@
       <label>To Congress<select id="f-to"></select></label>
       <label>Party<select id="f-party"><option value="">All parties</option></select></label>
       <label>Chamber<select id="f-chamber"><option value="">Both chambers</option></select></label>
-      <label>State<select id="f-state"><option value="">All states</option></select></label>
       <label class="wide">Member<input type="search" id="f-member" placeholder="Name or ICPSR ID" autocomplete="off"></label>
     </div>
     <div class="actions">
@@ -158,6 +165,7 @@
 
     <div id="results">
       <div class="spectrum" id="spectrum"></div>
+      <div class="band-info" id="band-info"></div>
       <div class="kpis" id="kpis"></div>
 
       <h3>Share of messages by category</h3>
@@ -226,13 +234,16 @@
      from the same folder. A build step can inline them here to make a single-file demo. -->
 <script id="summary-data" type="text/csv"></script>
 <script id="manifest-data" type="application/json"></script>
+<script id="words-data-Twitter" type="application/json"></script>
+<script id="words-data-Facebook" type="application/json"></script>
+<script id="words-data-Newsletters" type="application/json"></script>
 
 <script>
 // ===== Configuration ======================================================
 // Where the bulk files live. Filename is appended, e.g. DATA_BASE_URL + "twitter_117.csv.gz".
 //   Cloudflare R2:   "https://pub-xxxxxxxx.r2.dev/"
 //   GitHub Releases: "https://github.com/ORG/REPO/releases/download/v1.0/"
-const DATA_BASE_URL = "https://github.com/mjheseltine/CongressMessageDB/releases/download/v1.0/";
+const DATA_BASE_URL = "https://github.com/mjheseltine/CongressMessageDB/releases/download/v1.1/";
 
 const CATS = [["Advertising","Advertising"],["CreditClaiming","Credit claiming"],["PositionTaking","Position taking"],
               ["ConstituentService","Constituent service"],["NegativePartisan","Negative partisanship"],["Bipartisan","Bipartisanship"]];
@@ -269,7 +280,7 @@ let DATA=[], MANIFEST=null;
 const $=id=>document.getElementById(id);
 const fmtN=n=>n.toLocaleString("en-US");
 const fmtP=x=>isFinite(x)?(100*x).toFixed(1)+"%":"—";
-const fmtS=x=>isFinite(x)?(x>0?"+":"")+x.toFixed(2):"—";
+const fmtS=x=>{ if(!isFinite(x)) return "—"; const t=x.toFixed(2); return (t==="0.00"||t==="-0.00")?"0.00":(x>0?"+":"")+t; };
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 function fill(sel, values, keepFirst=true){
@@ -285,7 +296,6 @@ function initFilters(){
   $("f-to").selectedIndex=cong.length-1;
   fill($("f-party"), uniq("MemberParty"));
   fill($("f-chamber"), uniq("MemberChamber"));
-  fill($("f-state"), uniq("MemberState"));
   document.querySelectorAll(".filters select, .filters input").forEach(el=>el.addEventListener("input", render));
   $("btn-reset").addEventListener("click", ()=>{ document.querySelectorAll(".filters select").forEach(s=>s.selectedIndex=0); $("f-to").selectedIndex=cong.length-1; $("f-member").value=""; render(); });
   $("btn-download").addEventListener("click", downloadFiltered);
@@ -294,14 +304,13 @@ function selected(){
   const c=s=>parseInt(s.value);
   let from=c($("f-from")), to=c($("f-to")); if(from>to) [from,to]=[to,from];
   return {platform:$("f-platform").value, from, to, party:$("f-party").value, chamber:$("f-chamber").value,
-          state:$("f-state").value, member:$("f-member").value.trim().toLowerCase()};
+          member:$("f-member").value.trim().toLowerCase()};
 }
 function filtered(){
   const s=selected();
   return DATA.filter(r=>
     (!s.platform||r.Platform===s.platform) && r.Congress>=s.from && r.Congress<=s.to &&
     (!s.party||r.MemberParty===s.party) && (!s.chamber||r.MemberChamber===s.chamber) &&
-    (!s.state||r.MemberState===s.state) &&
     (!s.member||String(r.MemberName||"").toLowerCase().includes(s.member)||String(r.MemberICPSR)===s.member));
 }
 
@@ -319,22 +328,116 @@ function agg(rows){
   return a;
 }
 
+// ===== Distinctive words ==================================================
+// Per-platform term counts by Congress x party x chamber cell (from prepare_keywords.py), summed
+// client-side for the current filters. Distinctiveness = Monroe, Colaresi & Quinn (2008) log-odds
+// with an informative Dirichlet prior, comparing a category (or score band) with the rest of the selection.
+const WORD_FILES={Twitter:"words_twitter.json",Facebook:"words_facebook.json",Newsletters:"words_newsletters.json"};
+const BAND_LABELS=["Strongly Democratic","Democratic","Leaning Democratic","Nonpartisan","Leaning Republican","Republican","Strongly Republican"];
+const WORDS={}; let wordsLoading=null, selectedBand=null;
+function platformsNeeded(){ const p=$("f-platform").value; return p?[p]:["Twitter","Facebook","Newsletters"]; }
+function ensureWords(){
+  const need=platformsNeeded().filter(p=>!(p in WORDS));
+  if(!need.length) return Promise.resolve();
+  if(wordsLoading) return wordsLoading;
+  wordsLoading=Promise.all(need.map(async p=>{
+    const inline=document.getElementById("words-data-"+p);
+    try{
+      if(inline&&inline.textContent.trim()) WORDS[p]=JSON.parse(inline.textContent);
+      else{ const r=await fetch(WORD_FILES[p]); WORDS[p]=r.ok?await r.json():null; }
+    }catch(e){ WORDS[p]=null; }
+  })).then(()=>{ wordsLoading=null; });
+  return wordsLoading;
+}
+function wordAgg(){
+  const s=selected(), plats=platformsNeeded().filter(p=>WORDS[p]);
+  if(!plats.length) return null;
+  const parties=s.party?[s.party]:["Democrat","Republican"], chambers=s.chamber?[s.chamber]:["House","Senate"];
+  const S=WORDS[plats[0]].slices.length, ndocs=new Array(S).fill(0), ntok=new Array(S).fill(0);
+  const hist=new Array(WORDS[plats[0]].hist_edges.length-1).fill(0), terms=new Map(); let cells=0;
+  for(const p of plats){ const W=WORDS[p], T=W.terms;
+    for(const cell of W.cells){
+      if(cell.congress<s.from||cell.congress>s.to||!parties.includes(cell.party)||!chambers.includes(cell.chamber)) continue;
+      cells++;
+      for(let i=0;i<S;i++){ ndocs[i]+=cell.ndocs[i]; ntok[i]+=cell.ntok[i]; }
+      cell.hist.forEach((h,i)=>{ hist[i]+=h; });
+      cell.all.forEach((c,i)=>{ if(c){ let e=terms.get(T[i]); if(!e){ e=new Float64Array(S); terms.set(T[i],e); } e[0]+=c; } });
+      for(const k in cell.s){ const [ts,cs]=cell.s[k], ki=+k; for(let j=0;j<ts.length;j++){ const e=terms.get(T[ts[j]]); if(e) e[ki]+=cs[j]; } }
+    }
+  }
+  return cells?{ndocs,ntok,hist,terms,slices:WORDS[plats[0]].slices,bands:WORDS[plats[0]].bands,edges:WORDS[plats[0]].hist_edges}:null;
+}
+function distinctive(agg,k,K=8,alpha0=500){
+  const nA=agg.ntok[k], nB=agg.ntok[0]-nA; if(nA<50||nB<50) return [];
+  const res=[];
+  for(const [term,e] of agg.terms){
+    const yi=e[k]; if(yi<5) continue;
+    const yj=e[0]-yi, a=alpha0*e[0]/agg.ntok[0];
+    const d=Math.log((yi+a)/Math.max(nA+alpha0-yi-a,.5))-Math.log((yj+a)/Math.max(nB+alpha0-yj-a,.5));
+    res.push([term,d/Math.sqrt(1/(yi+a)+1/(yj+a))]);
+  }
+  res.sort((p,q)=>q[1]-p[1]);
+  const out=[], seen=new Set();
+  for(const r of res){ if(r[1]<=0) break;
+    const parts=r[0].split(" ");
+    if(parts.length===2&&parts.every(w=>seen.has(w))) continue;   // skip "border crisis" when both words are already listed
+    out.push(r); parts.forEach(w=>seen.add(w)); if(out.length>=K) break; }
+  return out;
+}
+function termsHTML(list,empty){
+  if(!list.length) return `<span>${empty||"not enough messages to rank words"}</span>`;
+  const n=list.length;
+  return list.map(([t],i)=>`<span class="t${i<3?" top":""}" style="font-size:${(14.5-2.5*i/Math.max(1,n-1)).toFixed(1)}px">${esc(t)}</span>`).join(' <span class="sep">·</span> ');
+}
+let currentAgg=null;
+function renderWords(){
+  const bars=$("bars");
+  if(selected().member){ currentAgg=null; bars.classList.add("no-words"); $("band-info").textContent=""; renderSpectrum(filtered(),agg(filtered())); return; }
+  const need=platformsNeeded(), missing=need.filter(p=>!(p in WORDS));
+  if(missing.length){ ensureWords().then(renderWords); bars.querySelectorAll(".bar-terms").forEach(el=>el.textContent="loading words…"); return; }
+  currentAgg=wordAgg();
+  if(!currentAgg){ bars.classList.add("no-words"); $("band-info").textContent=""; renderSpectrum(filtered(),agg(filtered())); return; }
+  bars.classList.remove("no-words");
+  const si=agg=>k=>currentAgg.slices.indexOf(k);
+  bars.querySelectorAll(".bar-terms").forEach(el=>{ const k=currentAgg.slices.indexOf(el.dataset.cat); el.innerHTML=termsHTML(k>0?distinctive(currentAgg,k):[]); });
+  renderSpectrum(filtered(),agg(filtered()));
+  renderBandInfo();
+}
+function selectBand(i){ selectedBand=(selectedBand===i)?null:i; renderSpectrum(filtered(),agg(filtered())); renderBandInfo(); }
+function renderBandInfo(){
+  const el=$("band-info"); if(!currentAgg){ el.textContent=""; return; }
+  if(selectedBand==null){ el.innerHTML="Tap a band of the scale to see distinctive words for messages in that range."; return; }
+  const k=currentAgg.slices.indexOf("band"+selectedBand), [lo,hi]=currentAgg.bands[selectedBand];
+  const scored=currentAgg.bands.reduce((a,_,i)=>a+currentAgg.ndocs[currentAgg.slices.indexOf("band"+i)],0);
+  const share=scored?currentAgg.ndocs[k]/scored:NaN;
+  el.innerHTML=`<b>${BAND_LABELS[selectedBand]}</b> (${fmtS(lo)} to ${fmtS(hi)}) · ${fmtP(share)} of scored messages · ${termsHTML(distinctive(currentAgg,k,10))}`;
+}
+
 // ===== Rendering ==========================================================
 function renderSpectrum(rows, all){
   const D=agg(rows.filter(r=>r.MemberParty==="Democrat")), R=agg(rows.filter(r=>r.MemberParty==="Republican"));
-  const W=520,H=96,L=34,Rt=34,y=46,w=W-L-Rt, x=v=>L+(v+1)/2*w;
-  const marker=(v,color,label,dy)=>isFinite(v)?`
+  const W=520,H=132,L=34,Rt=34,y=82,w=W-L-Rt, x=v=>L+(v+1)/2*w, F="IBM Plex Sans,system-ui,sans-serif";
+  const marker=(v,color,label)=>isFinite(v)?`
     <g class="marker" transform="translate(${x(v).toFixed(1)},0)">
       <line x1="0" x2="0" y1="${y-14}" y2="${y+14}" stroke="${color}" stroke-width="2.5"/>
-      <text x="0" y="${y+dy}" text-anchor="middle" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="13" font-weight="600" fill="${color}">${label} ${fmtS(v)}</text></g>`:"";
+      <text x="0" y="${y+44}" text-anchor="middle" font-family="${F}" font-size="13" font-weight="600" fill="${color}">${label} ${fmtS(v)}</text></g>`:"";
+  let hist="", bands="";
+  if(currentAgg){
+    const hmax=Math.max(1,...currentAgg.hist), e=currentAgg.edges;
+    hist=currentAgg.hist.map((h,i)=>{ const bh=38*h/hmax; return `<rect x="${(x(e[i])+.5).toFixed(1)}" y="${(y-10-bh).toFixed(1)}" width="${(x(e[i+1])-x(e[i])-1).toFixed(1)}" height="${bh.toFixed(1)}" fill="var(--muted)" fill-opacity=".22"/>`; }).join("");
+    bands=currentAgg.bands.map(([lo,hi],i)=>`<rect class="band" x="${x(lo).toFixed(1)}" y="30" width="${(x(hi)-x(lo)).toFixed(1)}" height="${y-30+18}" fill="var(--ink)" fill-opacity="${selectedBand===i?.12:0}" stroke="${selectedBand===i?"var(--ink)":"none"}" stroke-width="1" rx="3" onclick="selectBand(${i})"><title>${BAND_LABELS[i]}: ${fmtS(lo)} to ${fmtS(hi)}</title></rect>`).join("");
+  }
   $("spectrum").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mean partisan score of the selected messages">
     <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="var(--dem)"/><stop offset=".5" stop-color="var(--rule)"/><stop offset="1" stop-color="var(--rep)"/></linearGradient></defs>
+    ${hist}
     <rect x="${L}" y="${y-5}" width="${w}" height="10" rx="5" fill="url(#g)"/>
-    ${[-1,-.5,0,.5,1].map(v=>`<line x1="${x(v)}" x2="${x(v)}" y1="${y+9}" y2="${y+15}" stroke="var(--muted)"/><text x="${x(v)}" y="${y+30}" text-anchor="middle" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="12" fill="var(--muted)">${v>0?"+"+v:v}</text>`).join("")}
-    <text x="${L}" y="14" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="12" fill="var(--muted)">Democratic</text>
-    <text x="${W-Rt}" y="14" text-anchor="end" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="12" fill="var(--muted)">Republican</text>
+    ${[-1,-.5,0,.5,1].map(v=>`<line x1="${x(v)}" x2="${x(v)}" y1="${y+9}" y2="${y+15}" stroke="var(--muted)"/><text x="${x(v)}" y="${y+28}" text-anchor="middle" font-family="${F}" font-size="12" fill="var(--muted)">${v>0?"+"+v:v}</text>`).join("")}
+    <text x="${L}" y="14" font-family="${F}" font-size="12" fill="var(--muted)">Democratic</text>
+    <text x="${W-Rt}" y="14" text-anchor="end" font-family="${F}" font-size="12" fill="var(--muted)">Republican</text>
+    ${currentAgg?`<text x="${W/2}" y="14" text-anchor="middle" font-family="${F}" font-size="11" fill="var(--muted)">distribution of message scores</text>`:""}
     ${isFinite(all.score)?`<line x1="${x(all.score)}" x2="${x(all.score)}" y1="${y-11}" y2="${y+11}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 2"/>`:""}
-    ${marker(D.score,"var(--dem)","D",-20)}${marker(R.score,"var(--rep)","R",-20)}
+    ${marker(D.score,"var(--dem)","D")}${marker(R.score,"var(--rep)","R")}
+    ${bands}
   </svg>`;
 }
 function renderKPIs(a){
@@ -348,7 +451,7 @@ function renderBars(rows){
   const max=Math.max(.05,...plats.flatMap(p=>CATS.map(([k])=>per[p].p[k]||0)));
   $("bars").innerHTML=CATS.map(([k,label])=>`<div class="bar-row"><div class="bar-label">${label}</div><div class="bar-set">${
     plats.map(p=>{ const v=per[p].p[k]||0; return `<div class="bar"><i style="width:${(100*v/max).toFixed(1)}%;background:${PLATFORM_COLOR[p]}"></i><span>${fmtP(v)}</span></div>`; }).join("")
-  }</div></div>`).join("");
+  }</div><div class="bar-terms" data-cat="${k}"></div></div>`).join("");
   $("legend").innerHTML=plats.length>1?plats.map(p=>`<span><i style="background:${PLATFORM_COLOR[p]}"></i>${p}</span>`).join(""):"";
 }
 function renderCongressTable(rows){
@@ -372,6 +475,7 @@ function render(){
   if(!rows.length){ $("results").style.display="none"; $("row-count").textContent="No rows match these filters."; return; }
   $("results").style.display="";
   renderSpectrum(rows,a); renderKPIs(a); renderBars(rows); renderCongressTable(rows); renderMemberTable(rows);
+  renderWords();
 }
 function downloadFiltered(){
   const rows=filtered(); if(!rows.length) return;

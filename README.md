@@ -1,6 +1,6 @@
 # SCCC public data site
 
-Static website + release pipeline for the Scaled and Classified Congressional Communication dataset.
+Static website + release pipeline for the Scaled and Classified Congressional Communications dataset.
 No server: the site is plain HTML/JS served by GitHub Pages from this repo, and the bulk files are
 attached to a GitHub Release of the same repo.
 
@@ -10,12 +10,14 @@ attached to a GitHub Release of the same repo.
 
 ```
 prepare_data.py     builds everything below from the three internal CSVs (never reads text)
+prepare_keywords.py builds the "distinctive words" data for the explorer (the only script that reads text)
 build_demo.py       inlines the generated data into one HTML file (for previews/sharing drafts)
 docs/               GitHub Pages root
   index.html        about, explorer, download table, citation (single page)
   summary.csv       member × Congress × platform aggregates (generated)
   members.csv       member-session attributes (generated)
   manifest.json     list of bulk files with sizes (generated)
+  words_*.json      aggregate term counts for the explorer's word features (generated, optional)
   codebook.md       variable definitions
 release/            NOT committed (.gitignore) — attached to the GitHub Release
   data/*.csv.gz, *.parquet
@@ -66,6 +68,33 @@ assign party to each message by date, so a switcher has one row per party in tha
 
 Before publishing: fill in the two `[Authors: add definition]` placeholders in `docs/codebook.md`
 (`CreditConstituent`, `CreditPolicy`) and confirm the licence line in the site footer.
+
+## 1b. Build the distinctive-words data (optional)
+
+The explorer shows the terms most distinctive of each category and of each band of the partisan
+scale, updating with the platform / Congress / party / chamber filters. That needs aggregate term
+counts, produced by a separate script that reads the message text:
+
+```bash
+pip install scikit-learn
+python prepare_keywords.py \
+  --tweets      /path/Tweets.csv \
+  --facebook    /path/Facebook_Posts.csv \
+  --newsletters /path/Newsletters.csv \
+  --members docs/members.csv --site docs
+```
+
+Run it after `prepare_data.py` (it takes party and chamber from `docs/members.csv`). It reads each
+file twice in chunks, takes 30-45 minutes in total, and writes `docs/words_twitter.json`,
+`words_facebook.json` and `words_newsletters.json` (a few MB each; commit them). Its output is
+counts of how many messages contain each common unigram or bigram, by Congress x party x chamber
+cell, overall, per category and per score band; terms found in fewer than 25 messages (`--min-df`)
+are dropped, so no output row can be traced to a message. No text is written. Members with party
+"Other" are excluded from the counts.
+
+The site works without these files: if they are absent the word features simply don't appear.
+Knobs: `--vocab` (terms kept, default 4000), `--per-slice` (terms stored per cell and category,
+default 500; lower it to shrink the files), `--min-df`.
 
 ## 2. Attach the bulk files to a GitHub Release
 
