@@ -57,9 +57,17 @@ PLATFORMS = {
 }
 
 EXTRA_STOP = {"rt", "amp", "http", "https", "co", "www", "com", "html", "don", "doesn", "didn", "isn", "aren",
-              "wasn", "weren", "ll", "ve", "re", "just", "im", "th", "st", "nd", "rd", "us"}
-STOP = set(ENGLISH_STOP_WORDS) | EXTRA_STOP      # extended by --stopwords at run time
+              "wasn", "weren", "ll", "ve", "re", "just", "im", "th", "st", "nd", "rd", "us",
+              "don't", "doesn't", "didn't", "isn't", "aren't", "wasn't", "weren't", "can't", "won't", "i'm", "i've",
+              "i'll", "i'd", "we're", "we've", "we'll", "you're", "you've", "it's", "that's", "there's", "let's",
+              "what's", "here's", "they're", "who's"}
+STOP = set(ENGLISH_STOP_WORDS) | EXTRA_STOP      # single words; extended by --stopwords at run time
+TERM_STOP = set()                                # multi-word entries from --stopwords, removed as terms
+# Plurals that must not be folded into their singular because the meaning differs.
+NO_MERGE = {"rights", "states", "news", "arms", "times", "goods", "customs", "means", "grounds", "ties",
+            "series", "species", "affairs", "savings", "glasses", "spirits", "minutes", "seconds", "sanctions"}
 TOKEN = r"\b[a-z][a-z']*[a-z]\b"
+TOKEN_RE = re.compile(TOKEN)
 URL_RE = re.compile(r"https?://\S+|www\.\S+")
 MENTION_RE = re.compile(r"@\w+")
 
@@ -72,6 +80,60 @@ def clean(texts):
     out = texts.fillna("").astype(str).str.replace("&amp;", "&", regex=False)
     out = out.str.replace(URL_RE, " ", regex=True).str.replace(MENTION_RE, " ", regex=True)
     return out.str.replace("#", "", regex=False).str.lower()
+
+
+def base_form(tok, known):
+    """Fold a possessive into its base, and a plural into its singular when the singular is a known word."""
+    t = tok
+    if t.endswith("'s"):
+        t = t[:-2]
+    elif t.endswith("s'"):
+        t = t[:-1]
+    if t in NO_MERGE or t in STOP:
+        return t
+    for suffix, repl in (("s", ""), ("ies", "y"), ("ches", "ch"), ("shes", "sh"), ("sses", "ss"),
+                         ("xes", "x"), ("zes", "z"), ("ses", "s")):
+        if t.endswith(suffix):
+            cand = t[:-len(suffix)] + repl
+            if len(cand) >= 3 and cand in known and cand not in STOP:
+                return cand
+    return t
+
+
+class Normalizer:
+    """Maps raw tokens to canonical forms, and canonical terms to a display form: the most common raw
+    term (unigram or bigram) that folds into it, preferring forms without a possessive."""
+    def __init__(self, unigram_counts):
+        known = set(unigram_counts)
+        self.canon = {tok: base_form(tok, known) for tok in unigram_counts}
+        self.merged = sum(1 for t, b in self.canon.items() if t != b)
+        self.display = {}
+
+    def learn_display(self, raw_term_counts):
+        best = {}
+        for raw, n in raw_term_counts.items():
+            c = self.canonical_term(raw)
+            score = (0 if "'" in raw else 1, n)          # non-possessive forms win, then frequency
+            if c not in best or score > best[c][0]:
+                best[c] = (score, raw)
+        # if the only raw forms are possessives, display the canonical (possessive-free) form itself
+        self.display = {c: (c if ("'" in v[1] and v[1] != c) else v[1]) for c, v in best.items()}
+
+    def tokenize(self, text):
+        out = []
+        for w in TOKEN_RE.findall(text):
+            if w in STOP:
+                continue
+            c = self.canon.get(w, w)
+            if c not in STOP:
+                out.append(c)
+        return out
+
+    def canonical_term(self, term):
+        return " ".join(self.canon.get(w, w) for w in term.split())
+
+    def display_term(self, term):
+        return self.display.get(term, term)
 
 
 def load_members(path):
@@ -131,19 +193,28 @@ def fit_vocabulary(path, text_col, args):
     if len(sample) > args.sample:
         sample = sample.sample(n=args.sample, random_state=0)
     log(f"  vocabulary from {len(sample):,} of {n_seen:,} messages")
-    vec = CountVectorizer(binary=True, ngram_range=(1, 2), stop_words=sorted(STOP), token_pattern=TOKEN,
+    texts = clean(sample)
+    uni = CountVectorizer(binary=True, ngram_range=(1, 1), stop_words=sorted(STOP), token_pattern=TOKEN, min_df=2, dtype=np.int32)
+    Xu = uni.fit_transform(texts)
+    counts = dict(zip(uni.get_feature_names_out().tolist(), np.asarray(Xu.sum(axis=0)).ravel().tolist()))
+    norm = Normalizer(counts)
+    raw = CountVectorizer(binary=True, ngram_range=(1, 2), stop_words=sorted(STOP), token_pattern=TOKEN, min_df=2, dtype=np.int32)
+    Xr = raw.fit_transform(texts)
+    norm.learn_display(dict(zip(raw.get_feature_names_out().tolist(), np.asarray(Xr.sum(axis=0)).ravel().tolist())))
+    log(f"  {norm.merged:,} plural/possessive variants folded into base forms")
+    vec = CountVectorizer(binary=True, ngram_range=(1, 2), tokenizer=norm.tokenize, token_pattern=None, lowercase=False,
                           min_df=max(2, int(args.min_df * len(sample) / max(n_seen, 1))),
                           max_features=args.vocab * 3, dtype=np.int32)
-    vec.fit(clean(sample))
-    vocab = vec.get_feature_names_out().tolist()
+    vec.fit(texts)
+    vocab = [t for t in vec.get_feature_names_out().tolist() if t not in TERM_STOP]
     log(f"  candidate vocabulary: {len(vocab):,} terms")
-    return vocab
+    return vocab, norm
 
 
-def count_platform(path, text_col, vocab, members, args):
+def count_platform(path, text_col, vocab, norm, members, args):
     """Pass 2: accumulate per-cell, per-slice document frequencies."""
-    vec = CountVectorizer(vocabulary=vocab, binary=True, ngram_range=(1, 2), stop_words=sorted(STOP), token_pattern=TOKEN,
-                          dtype=np.int32)
+    vec = CountVectorizer(vocabulary=vocab, binary=True, ngram_range=(1, 2), tokenizer=norm.tokenize, token_pattern=None,
+                          lowercase=False, dtype=np.int32)
     V = len(vocab)
     cells = {}          # (congress, party, chamber) -> cell index
     acc = []            # list of dense (S x V) blocks, one per cell, allocated on first sight
@@ -208,7 +279,7 @@ def count_platform(path, text_col, vocab, members, args):
     return cells, acc, ndocs, hist
 
 
-def prune_and_write(label, unit, vocab, cells, acc, ndocs, hist, out_path, args):
+def prune_and_write(label, unit, vocab, norm, cells, acc, ndocs, hist, out_path, args):
     """Keep the useful part of the vocabulary and write the JSON the site reads."""
     V = len(vocab)
     total_all = sum(a[0] for a in acc)                       # overall document frequency per term
@@ -222,7 +293,7 @@ def prune_and_write(label, unit, vocab, cells, acc, ndocs, hist, out_path, args)
     keep &= top
     idx = np.where(keep)[0]
     remap = {old: new for new, old in enumerate(idx)}
-    terms = [vocab[i] for i in idx]
+    terms = [norm.display_term(vocab[i]) for i in idx]
     log(f"  final vocabulary: {len(terms):,} terms (min df {args.min_df})")
 
     out_cells = []
@@ -272,8 +343,9 @@ def main():
         raise SystemExit("give at least one of --tweets / --facebook / --newsletters")
     if os.path.exists(args.stopwords):
         extra = {w.strip().lower() for w in open(args.stopwords, encoding="utf-8") if w.strip() and not w.startswith("#")}
-        STOP.update(extra)
-        log(f"{len(extra)} extra stop terms from {args.stopwords}")
+        STOP.update(w for w in extra if " " not in w)
+        TERM_STOP.update(w for w in extra if " " in w)
+        log(f"{len(extra)} extra stop terms from {args.stopwords} ({len(TERM_STOP)} multi-word)")
     members = load_members(args.members)
     log(f"{len(members):,} member-sessions with party and chamber from {args.members}")
     os.makedirs(args.site, exist_ok=True)
@@ -283,9 +355,9 @@ def main():
             continue
         label, unit = PLATFORMS[key]
         log(f"\n{label}: {path}")
-        vocab = fit_vocabulary(path, args.text_col, args)
-        cells, acc, ndocs, hist = count_platform(path, args.text_col, vocab, members, args)
-        prune_and_write(label, unit, vocab, cells, acc, ndocs, hist, os.path.join(args.site, f"words_{key}.json"), args)
+        vocab, norm = fit_vocabulary(path, args.text_col, args)
+        cells, acc, ndocs, hist = count_platform(path, args.text_col, vocab, norm, members, args)
+        prune_and_write(label, unit, vocab, norm, cells, acc, ndocs, hist, os.path.join(args.site, f"words_{key}.json"), args)
     log("\nDone.")
 
 

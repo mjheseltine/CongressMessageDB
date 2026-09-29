@@ -1,1 +1,16 @@
-# One term per line; lines starting with # are ignored. Terms here are removed from the distinctive-word lists.
+# One term per line; lines starting with # are ignored.
+# Single words are dropped before counting (so no bigrams form around them).
+# Multi-word entries are removed as terms without affecting their individual words.
+ed
+make
+need
+i'm
+share post
+tune
+watch
+tcot
+read
+news
+click
+email
+sent
