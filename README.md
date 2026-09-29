@@ -9,8 +9,8 @@ attached to a GitHub Release of the same repo.
 - Bulk files: https://github.com/mjheseltine/CongressMessageDB/releases
 
 ```
-prepare_data.py     builds everything below from the three internal CSVs
-build_demo.py       inlines summary.csv + manifest.json into one HTML file (for previews/sharing drafts)
+prepare_data.py     builds everything below from the three internal CSVs (never reads text)
+build_demo.py       inlines the generated data into one HTML file (for previews/sharing drafts)
 docs/               GitHub Pages root
   index.html        about, explorer, download table, citation (single page)
   summary.csv       member × Congress × platform aggregates (generated)
@@ -30,9 +30,11 @@ python prepare_data.py \
   --tweets      /path/Tweets.csv \
   --facebook    /path/Facebook_Posts.csv \
   --newsletters /path/Newsletters.csv \
-  --out release --site docs --version v1.0 \
-  --voteview    /path/HSall_members.csv      # optional: session-specific party/chamber/state/district
+  --master      "/path/Member-Session Data (v5.4).csv" \
+  --out release --site docs --version v1.1
 ```
+
+Keep the master file with the other internal files, outside the repo.
 
 The script loads each internal file fully into memory (pandas); the tweet file (~0.8 GB CSV)
 needs roughly 4–6 GB of RAM. Message text is never read: the script only loads the columns
@@ -48,9 +50,19 @@ sentence level for newsletters, as the article does, so category shares are comp
 scores, pooled (no suffix) and per platform (`Twt`, `FB`, `NL` suffixes), so it works on its own as a
 member-level dataset.
 
-`--voteview` replaces party / chamber / state / district with Voteview's values keyed on
-(icpsr, congress) — https://voteview.com/data → "Member Ideology", all congresses, CSV — and
-records which rows were corrected in `members.csv` → `Source`.
+`--master` is the project's member-session file and is the ground truth for name, party, chamber,
+state and district. The log reports member-sessions that have messages but are not in the master
+(typically posts from before a member took office, or an unmapped ICPSR ID); rerun with
+`--drop-unmatched` to exclude those messages from the release once you've reviewed the list.
+Voteview's alternate ICPSR IDs in the message files (post-switch and returning-member IDs) are
+folded into the master's IDs by the `ICPSR_ALIASES` table at the top of the script; extend it if
+the log shows more. If the master has optional `TermStart` / `TermEnd` columns (YYYY-MM-DD, blank
+where not needed), messages dated outside them are dropped, which lets you include members who
+joined or left mid-session without sweeping in their pre- or post-Congress posts.
+
+Party for the six mid-session switchers: `members.csv` carries the master's Party (longest
+affiliation of the session) plus `PartySwitch` and `PartySwitchDate`; `summary.csv` and the explorer
+assign party to each message by date, so a switcher has one row per party in that session.
 
 Before publishing: fill in the two `[Authors: add definition]` placeholders in `docs/codebook.md`
 (`CreditConstituent`, `CreditPolicy`) and confirm the licence line in the site footer.
@@ -81,7 +93,7 @@ A custom domain (Settings → Pages → Custom domain) is optional.
 
 ## 4. Updating later
 
-Re-run `prepare_data.py` with a new `--version`, `gh release create v1.1 ...`, update
+Re-run `prepare_data.py` with a new `--version`, `gh release create v1.2 ...`, update
 `DATA_BASE_URL` to the new tag, commit the regenerated `docs/*.csv` + `manifest.json`, and update the
 Harvard Dataverse record so the DOI resolves to the current version. The version shows in the footer.
 

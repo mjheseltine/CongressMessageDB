@@ -16,9 +16,10 @@ Outputs
   <out>/data/facebook_<congress>.csv.gz / .parquet              one row per post
   <out>/data/newsletters_<congress>.csv.gz / .parquet           one row per newsletter
   <out>/data/newsletter_sentences_<congress>.csv.gz / .parquet  one row per sentence bigram
-  <out>/members.csv                         one row per (MemberICPSR, Congress) with attributes plus message
-                                            counts, category proportions and mean partisanship, pooled
-                                            across platforms and with Twt / FB / NL suffixes per platform
+  <out>/members.csv                         one row per (MemberICPSR, Congress): attributes from the master
+                                            member-session file, party-switch fields, and message counts,
+                                            category proportions and mean partisanship, pooled across
+                                            platforms and with Twt / FB / NL suffixes per platform
   <site>/summary.csv                        one row per (Platform, Congress, MemberICPSR) with counts,
                                             category proportions and mean partisanship (drives the explorer)
   <site>/members.csv                        copy of members.csv for the site
@@ -26,12 +27,18 @@ Outputs
 
 Usage
   python prepare_data.py --tweets Tweets.csv --facebook Facebook_Posts.csv \
-      --newsletters Newsletters.csv --out ./release --site ./docs \
-      [--voteview HSall_members.csv]
+      --newsletters Newsletters.csv --master "Member-Session Data (v5.4).csv" \
+      --out ./release --site ./docs
 
-The optional --voteview file (https://voteview.com/data, "Member Ideology" CSV) replaces
-party / chamber / state / district with values keyed on (icpsr, congress), which fixes
-members whose attributes changed across sessions (e.g. House -> Senate).
+--master is the project's member-session file (one row per member and Congress, with Name,
+MemberICPSR, Session, Party, PartySwitch, PartySwitchDate, Chamber, State, District). It is the
+ground truth for member attributes: the values carried in the internal message files are used
+only for member-sessions the master does not contain, and those are reported in the log.
+
+Party for the six members who changed party mid-session is handled two ways. members.csv carries
+the master's Party (the longest affiliation of the session) plus PartySwitch and PartySwitchDate.
+summary.csv, which feeds the explorer, assigns party to each message by date, so a switcher has
+two rows in that session (one per party).
 """
 import argparse
 import datetime as dt
@@ -78,7 +85,22 @@ SUFFIX = {"Twt": "twitter", "FB": "facebook", "NL": "newsletter_sentences"}
 CAT_SHORT = {"NegativePartisan": "NegPartisan"}
 # Columns that identify a unique message; repeated values are collection duplicates and are dropped.
 ID_COLS = {"twitter": ["TweetID"], "facebook": ["PostURL"], "newsletter_sentences": ["NewsletterID", "BigramNumber"]}
-VOTEVIEW_PARTY = {100: "Democrat", 200: "Republican"}
+# Voteview issues a second ICPSR ID after a party switch (9 + the original) or when a member returns
+# after a gap, and the internal message files carry a mix of both. Alternate IDs are folded into the
+# ID the master file uses. A key can be an ICPSR (applies in every Congress) or (ICPSR, Congress).
+ICPSR_ALIASES = {
+    91980: 21980,          # Van Drew: post-switch ID -> master ID
+    14910: 94910,          # Specter: Republican-era ID -> master's Democratic-era ID (111th)
+    14828: 94828,          # Ralph Hall: original ID -> master's post-switch ID
+    (21518, 112): 21127,   # Dold: master uses 21127 in the 112th ...
+    (21127, 114): 21518,   #        ... and 21518 in the 114th
+    (21152, 114): 21535,   # Guinta: master uses 21535 in the 114th
+}
+
+MASTER_COLS = {"Name": "MemberName", "MemberICPSR": "MemberICPSR", "Session": "Congress", "Party": "MemberParty",
+               "PartySwitch": "PartySwitch", "PartySwitchDate": "PartySwitchDate", "Chamber": "MemberChamber",
+               "State": "MemberState", "District": "MemberDistrict"}
+MASTER_OPTIONAL = {"TermStart": "TermStart", "TermEnd": "TermEnd"}   # YYYY-MM-DD; messages outside are dropped
 
 
 def log(msg):
@@ -112,6 +134,17 @@ def read_platform(path, platform):
             df = df[~dup].copy()
     df["Congress"] = df["Congress"].astype("int16")
     df["MemberICPSR"] = df["MemberICPSR"].astype("int32")
+    n_alias = 0
+    for key, target in ICPSR_ALIASES.items():
+        icp, cong = key if isinstance(key, tuple) else (key, None)
+        m = df["MemberICPSR"] == icp
+        if cong is not None:
+            m &= df["Congress"] == cong
+        if m.any():
+            n_alias += int(m.sum())
+            df.loc[m, "MemberICPSR"] = target
+    if n_alias:
+        log(f"  remapped {n_alias:,} rows from alternate ICPSR IDs")
     for c in CATEGORIES:
         df[c] = df[c].fillna(0).astype("int8")
     if "MemberChamber" not in df.columns and "MemberDistrict" in df.columns:
@@ -177,9 +210,30 @@ def collapse_newsletters(bigrams):
     return nl
 
 
-def build_members(frames, voteview_path=None):
-    """One row per (MemberICPSR, Congress). Attributes = modal value across all messages,
-    overridden by Voteview when supplied."""
+def load_master(path):
+    """The member-session master file -> one row per (MemberICPSR, Congress) with our column names."""
+    header = list(pd.read_csv(path, nrows=0).columns)
+    cols = {**MASTER_COLS, **{k: v for k, v in MASTER_OPTIONAL.items() if k in header}}
+    m = pd.read_csv(path, usecols=list(cols), na_values=["NA"], low_memory=False).rename(columns=cols)
+    for c in MASTER_OPTIONAL.values():
+        if c not in m.columns:
+            m[c] = np.nan
+    if m["MemberICPSR"].isna().any():
+        log(f"  WARNING: {int(m['MemberICPSR'].isna().sum())} master rows have no MemberICPSR and cannot be matched")
+        m = m.dropna(subset=["MemberICPSR"])
+    m["MemberICPSR"] = m["MemberICPSR"].astype("int32")
+    m["Congress"] = m["Congress"].astype("int16")
+    dup = m.duplicated(["MemberICPSR", "Congress"])
+    if dup.any():
+        raise SystemExit(f"master file has {int(dup.sum())} duplicate (MemberICPSR, Session) rows")
+    m["MemberDistrict"] = m["MemberDistrict"].astype(str)
+    log(f"  {len(m):,} member-sessions in the master file; {int(m['PartySwitch'].notna().sum())} with a mid-session party switch")
+    return m
+
+
+def build_members(frames, master_path=None):
+    """One row per (MemberICPSR, Congress). Attributes come from the master file; for member-sessions
+    it lacks, the modal value across that member's messages is used and flagged in Source."""
     parts = []
     for df in frames.values():
         cols = ["MemberICPSR", "Congress"] + [c for c in MEMBER_COLS if c in df.columns]
@@ -188,31 +242,37 @@ def build_members(frames, voteview_path=None):
     members = (allm.groupby(["MemberICPSR", "Congress"], observed=True)
                    .agg({c: mode_or_first for c in MEMBER_COLS if c in allm.columns})
                    .reset_index())
+    for c in MEMBER_COLS:
+        members[c] = members[c].astype(object) if c in members.columns else np.nan
+    members["PartySwitch"] = pd.Series([np.nan] * len(members), dtype=object)
+    members["PartySwitchDate"] = pd.Series([np.nan] * len(members), dtype=object)
     members["Source"] = "messages"
+    counts = {k: df.groupby(["MemberICPSR", "Congress"], observed=True).size() for k, df in frames.items()
+              if k != "newsletter_sentences"}
 
-    if voteview_path:
-        log(f"Merging Voteview attributes from {voteview_path}")
-        vv = pd.read_csv(voteview_path, low_memory=False)
-        vv = vv[vv["chamber"].isin(["House", "Senate"])]
-        vv = vv.rename(columns={"icpsr": "MemberICPSR", "congress": "Congress"})
-        vv["MemberParty"] = vv["party_code"].map(VOTEVIEW_PARTY).fillna("Other")
-        vv["MemberChamber"] = vv["chamber"]
-        vv["MemberState"] = vv["state_abbrev"]
-        vv["MemberDistrict"] = np.where(vv["chamber"].eq("Senate"), "S",
-                                        vv["district_code"].fillna(0).astype(int).astype(str))
-        vv["MemberName"] = vv["bioname"]
-        vv = vv[["MemberICPSR", "Congress", "MemberName", "MemberParty", "MemberChamber",
-                 "MemberState", "MemberDistrict"]].drop_duplicates(["MemberICPSR", "Congress"])
-        members = members.merge(vv, on=["MemberICPSR", "Congress"], how="left", suffixes=("", "_vv"))
-        for c in MEMBER_COLS:
-            has = members[c + "_vv"].notna()
-            members.loc[has, c] = members.loc[has, c + "_vv"]
-            members.loc[has, "Source"] = "voteview"
-            members.drop(columns=[c + "_vv"], inplace=True)
-        n_vv = (members["Source"] == "voteview").sum()
-        log(f"  {n_vv:,} of {len(members):,} member-sessions matched Voteview")
+    if master_path:
+        log(f"Merging member attributes from {master_path}")
+        m = load_master(master_path)
+        members = members.merge(m, on=["MemberICPSR", "Congress"], how="left", suffixes=("", "_m"))
+        has = members["MemberName_m"].notna() | members["MemberParty_m"].notna()
+        for c in MEMBER_COLS + ["PartySwitch", "PartySwitchDate"]:
+            members[c] = np.where(has, members[c + "_m"].astype(object), members[c].astype(object))
+            members.drop(columns=[c + "_m"], inplace=True)
+        for c in MASTER_OPTIONAL.values():
+            members[c] = members[c].astype(object)
+        members.loc[has, "Source"] = "master"
+        unmatched = members[~has]
+        log(f"  {int(has.sum()):,} of {len(members):,} member-sessions matched the master file")
+        if len(unmatched):
+            log(f"  {len(unmatched):,} member-sessions with messages are NOT in the master file (attributes taken from the messages):")
+            for r in unmatched.sort_values(["Congress", "MemberICPSR"]).itertuples():
+                n = ", ".join(f"{k} {int(v.get((r.MemberICPSR, r.Congress), 0)):,}" for k, v in counts.items())
+                log(f"    ICPSR {r.MemberICPSR}  Congress {r.Congress}  {r.MemberName}  ({r.MemberParty}, {r.MemberState})  [{n}]")
+        no_msgs = m.merge(members[["MemberICPSR", "Congress"]], on=["MemberICPSR", "Congress"], how="left", indicator=True)
+        no_msgs = no_msgs[no_msgs["_merge"] == "left_only"]
+        log(f"  {len(no_msgs):,} master member-sessions have no messages on any platform (not written to members.csv)")
 
-    members = members[["MemberICPSR", "Congress"] + MEMBER_COLS + ["Source"]]
+    members = members[["MemberICPSR", "Congress"] + MEMBER_COLS + ["PartySwitch", "PartySwitchDate", "Source"] + list(MASTER_OPTIONAL.values())]
     before = members["MemberName"].astype(str)
     members["MemberName"] = before.map(normalize_name)
     log(f"  normalized capitalization of {(before != members['MemberName'].astype(str)).sum():,} member-session names")
@@ -250,12 +310,29 @@ def member_aggregates(frames):
     return agg
 
 
+def message_party(df, members):
+    """Party of each message: the member-session's party, except for mid-session switchers, whose
+    messages before PartySwitchDate get the party they switched from and later ones the party they
+    switched to. PartySwitch is written as '<from> to <to>'."""
+    m = members[["MemberICPSR", "Congress", "MemberParty", "PartySwitch", "PartySwitchDate"]]
+    x = df[["MemberICPSR", "Congress", "Date"]].merge(m, on=["MemberICPSR", "Congress"], how="left")
+    party = x["MemberParty"].astype("object")
+    sw = x["PartySwitch"].notna()
+    if sw.any():
+        frm = x.loc[sw, "PartySwitch"].str.split(" to ").str[0]
+        to = x.loc[sw, "PartySwitch"].str.split(" to ").str[1]
+        before = x.loc[sw, "Date"].astype(str) < x.loc[sw, "PartySwitchDate"].astype(str)
+        party.loc[sw] = np.where(before, frm, to)
+    return party.to_numpy()
+
+
 def build_summary(frames, members):
     """One row per (Platform, Congress, MemberICPSR)."""
     out = []
     for eng_key, frame_key, label in SUMMARY_SOURCES:
         df = frames[frame_key]
-        g = df.groupby(["Congress", "MemberICPSR"], observed=True)
+        df = df.assign(MemberParty=message_party(df, members))
+        g = df.groupby(["Congress", "MemberICPSR", "MemberParty"], observed=True, dropna=False)
         s = pd.DataFrame({
             "n_messages": g.size(),
             "n_scored": g["PartisanScore"].count(),
@@ -273,7 +350,8 @@ def build_summary(frames, members):
         s.insert(0, "Platform", label)
         out.append(s)
     summary = pd.concat(out, ignore_index=True)
-    summary = summary.merge(members[["MemberICPSR", "Congress"] + MEMBER_COLS], on=["MemberICPSR", "Congress"], how="left")
+    attrs = [c for c in MEMBER_COLS if c != "MemberParty"]
+    summary = summary.merge(members[["MemberICPSR", "Congress"] + attrs], on=["MemberICPSR", "Congress"], how="left")
     front = ["Platform", "Congress", "MemberICPSR"] + MEMBER_COLS
     summary = summary[front + [c for c in summary.columns if c not in front]]
     # Round to keep the file small; the explorer re-weights by n_messages / n_scored.
@@ -315,7 +393,9 @@ def main():
     ap.add_argument("--newsletters", required=True)
     ap.add_argument("--out", default="release", help="folder for bulk files (upload to R2 / Releases / Dataverse)")
     ap.add_argument("--site", default="docs", help="GitHub Pages folder (receives summary.csv, members.csv, manifest.json)")
-    ap.add_argument("--voteview", default=None, help="Voteview HSall_members.csv for session-specific member attributes")
+    ap.add_argument("--master", default=None, help='member-session master file, e.g. "Member-Session Data (v5.4).csv"')
+    ap.add_argument("--drop-unmatched", action="store_true",
+                    help="with --master: drop messages from member-sessions the master file does not contain")
     ap.add_argument("--version", default=dt.date.today().isoformat(), help="release label written into manifest.json")
     args = ap.parse_args()
 
@@ -328,7 +408,32 @@ def main():
     }
 
     log("Building members table")
-    members = build_members(frames, args.voteview)
+    members = build_members(frames, args.master)
+    if args.master and args.drop_unmatched:
+        keep = members.loc[members["Source"] == "master", ["MemberICPSR", "Congress"]]
+        for key, df in frames.items():
+            n0 = len(df)
+            frames[key] = df.merge(keep, on=["MemberICPSR", "Congress"], how="inner")
+            log(f"  {key}: dropped {n0 - len(frames[key]):,} messages from member-sessions not in the master file")
+        members = members[members["Source"] == "master"].reset_index(drop=True)
+    if args.master and (members["TermStart"].notna().any() or members["TermEnd"].notna().any()):
+        span = members.loc[members["TermStart"].notna() | members["TermEnd"].notna(),
+                           ["MemberICPSR", "Congress", "TermStart", "TermEnd"]]
+        for key, df in frames.items():
+            x = df[["MemberICPSR", "Congress", "Date"]].merge(span, on=["MemberICPSR", "Congress"], how="left")
+            d = x["Date"].astype(str)
+            out = (x["TermStart"].notna() & (d < x["TermStart"].astype(str))) | (x["TermEnd"].notna() & (d > x["TermEnd"].astype(str)))
+            if out.any():
+                log(f"  {key}: dropped {int(out.sum()):,} messages dated outside a member's TermStart/TermEnd")
+                frames[key] = df[~out.to_numpy()].copy()
+        # member aggregates were computed before the date filter; recompute
+        members = members.drop(columns=[c for c in members.columns if c.startswith(("Num", "Prop", "PartisanScore", "PartisanExtremity"))])
+        members = members.merge(member_aggregates(frames), on=["MemberICPSR", "Congress"], how="left")
+        gone = members["NumMessages"].isna()
+        if gone.any():
+            log(f"  {int(gone.sum())} member-sessions have no messages left after the term-date filter and are not written")
+            members = members[~gone].reset_index(drop=True)
+    members = members.drop(columns=list(MASTER_OPTIONAL.values()))
     log("Building summary table")
     summary = build_summary(frames, members)
     log("Writing bulk files")

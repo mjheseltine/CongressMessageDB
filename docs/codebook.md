@@ -60,8 +60,12 @@ Classifier labels come from BERTweet models trained on approximately 43,000 hand
 | `MemberParty` | Democrat, Republican or Other. |
 | `MemberChamber` | House or Senate. |
 | `MemberState` | Two-letter state abbreviation. |
-| `MemberDistrict` | House district number, or `S` for senators. |
-| `Source` | `voteview` if attributes were taken from Voteview for that member-session; `messages` if inferred from the internal files. |
+| `MemberDistrict` | House district number (`1` for at-large seats), or `S` for senators. |
+| `PartySwitch` | For the six members who changed party during a session: the move, e.g. `Democrat to Republican`; blank otherwise. |
+| `PartySwitchDate` | First day of the new affiliation (YYYY-MM-DD); blank otherwise. |
+| `Source` | `master` when attributes come from the project's member-session file (the normal case); `messages` when inferred from the internal message files. |
+
+`MemberParty` is the party the member held for the longest part of that session. Members who caucus with a party but are formally independent (Sanders, King, Lieberman) are `Other`. To assign party to individual messages for the six switchers, compare the message `Date` with `PartySwitchDate`.
 
 The remaining columns summarise that member-session's messages. Each appears four times: without a suffix (pooled across all three platforms) and with the suffixes `Twt` (tweets), `FB` (Facebook posts) and `NL` (newsletter sentences). Suffixed columns are blank where the member has no messages on that platform.
 
@@ -78,7 +82,7 @@ For example, `PropNegPartisanTwt` is the share of a member's tweets in that Cong
 
 ## `summary.csv`
 
-One row per `Platform` × `Congress` × `MemberICPSR`, with the member attributes above plus:
+One row per `Platform` × `Congress` × `MemberICPSR` × `MemberParty`, with the member attributes above plus the columns below. Party is assigned to each message by date, so the six mid-session switchers have two rows in the session of their switch; every other member-session has one.
 
 | Variable | Description |
 |---|---|
@@ -95,7 +99,7 @@ To aggregate across rows, weight proportions by `n_messages` and scores by `n_sc
 
 - Twitter and Facebook content from accounts deleted before collection is absent; the 2009–2017 counts are lower bounds.
 - Facebook engagement counts for the earliest years are frequently zero because CrowdTangle did not return them.
-- Some member-sessions lack a name or party in the source data; these show as blank or `Other`. Where Voteview attributes are available (`Source = voteview`) they should be preferred.
+- Member attributes come from the project's member-session file, which was checked against the `unitedstates/congress-legislators` reference. Messages from accounts posted before the member took office are excluded.
 - Newsletter-level category flags use an any-sentence rule, so they rise with newsletter length; sentence-level shares are in `newsletter_sentences_*`.
 
 ## Licence
