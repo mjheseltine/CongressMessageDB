@@ -147,7 +147,7 @@
 
   <section id="explore">
     <h2>Explore</h2>
-    <p class="sub">Filter by platform, Congress, party, chamber or member. Results are message-weighted: proportions are the share of messages in each category and the partisan score is the mean across scored messages. Newsletter figures are computed per sentence, the unit on which the classifiers and scaling model ran, so category shares are comparable across platforms. The distinctive words beside each category, and beneath the partisan scale, are the terms most over-represented in those messages relative to the rest of the current selection; they respond to the platform, Congress, party and chamber filters and are hidden when the results are narrowed to a member.</p>
+    <p class="sub">Filter by platform, Congress, party, chamber or member. Newsletter results are computed per sentence so category shares are comparable across platforms. The displayed distinctive words are the terms most over-represented in those messages relative to the rest of the current selection.</p>
 
     <div class="filters">
       <label>Platform<select id="f-platform"><option value="">All platforms</option></select></label>
@@ -333,7 +333,9 @@ function agg(rows){
 // client-side for the current filters. Distinctiveness = Monroe, Colaresi & Quinn (2008) log-odds
 // with an informative Dirichlet prior, comparing a category (or score band) with the rest of the selection.
 const WORD_FILES={Twitter:"words_twitter.json",Facebook:"words_facebook.json",Newsletters:"words_newsletters.json"};
-const BAND_LABELS=["Strongly Democratic","Democratic","Leaning Democratic","Nonpartisan","Leaning Republican","Republican","Strongly Republican"];
+const BAND_LABEL_SETS={5:["Strongly Democratic","Leaning Democratic","Nonpartisan","Leaning Republican","Strongly Republican"],
+                       7:["Strongly Democratic","Democratic","Leaning Democratic","Nonpartisan","Leaning Republican","Republican","Strongly Republican"]};
+const bandLabel=i=>(BAND_LABEL_SETS[currentAgg.bands.length]||[])[i]||`Band ${i+1}`;
 const WORDS={}; let wordsLoading=null, selectedBand=null;
 function platformsNeeded(){ const p=$("f-platform").value; return p?[p]:["Twitter","Facebook","Newsletters"]; }
 function ensureWords(){
@@ -367,7 +369,7 @@ function wordAgg(){
   }
   return cells?{ndocs,ntok,hist,terms,slices:WORDS[plats[0]].slices,bands:WORDS[plats[0]].bands,edges:WORDS[plats[0]].hist_edges}:null;
 }
-function distinctive(agg,k,K=8,alpha0=500){
+function distinctive(agg,k,K=15,alpha0=500){
   const nA=agg.ntok[k], nB=agg.ntok[0]-nA; if(nA<50||nB<50) return [];
   const res=[];
   for(const [term,e] of agg.terms){
@@ -410,7 +412,7 @@ function renderBandInfo(){
   const k=currentAgg.slices.indexOf("band"+selectedBand), [lo,hi]=currentAgg.bands[selectedBand];
   const scored=currentAgg.bands.reduce((a,_,i)=>a+currentAgg.ndocs[currentAgg.slices.indexOf("band"+i)],0);
   const share=scored?currentAgg.ndocs[k]/scored:NaN;
-  el.innerHTML=`<b>${BAND_LABELS[selectedBand]}</b> (${fmtS(lo)} to ${fmtS(hi)}) · ${fmtP(share)} of scored messages · ${termsHTML(distinctive(currentAgg,k,10))}`;
+  el.innerHTML=`<b>${bandLabel(selectedBand)}</b> (${fmtS(lo)} to ${fmtS(hi)}) · ${fmtP(share)} of scored messages · ${termsHTML(distinctive(currentAgg,k,15))}`;
 }
 
 // ===== Rendering ==========================================================
@@ -425,7 +427,7 @@ function renderSpectrum(rows, all){
   if(currentAgg){
     const hmax=Math.max(1,...currentAgg.hist), e=currentAgg.edges;
     hist=currentAgg.hist.map((h,i)=>{ const bh=38*h/hmax; return `<rect x="${(x(e[i])+.5).toFixed(1)}" y="${(y-10-bh).toFixed(1)}" width="${(x(e[i+1])-x(e[i])-1).toFixed(1)}" height="${bh.toFixed(1)}" fill="var(--muted)" fill-opacity=".22"/>`; }).join("");
-    bands=currentAgg.bands.map(([lo,hi],i)=>`<rect class="band" x="${x(lo).toFixed(1)}" y="30" width="${(x(hi)-x(lo)).toFixed(1)}" height="${y-30+18}" fill="var(--ink)" fill-opacity="${selectedBand===i?.12:0}" stroke="${selectedBand===i?"var(--ink)":"none"}" stroke-width="1" rx="3" onclick="selectBand(${i})"><title>${BAND_LABELS[i]}: ${fmtS(lo)} to ${fmtS(hi)}</title></rect>`).join("");
+    bands=currentAgg.bands.map(([lo,hi],i)=>`<rect class="band" x="${x(lo).toFixed(1)}" y="30" width="${(x(hi)-x(lo)).toFixed(1)}" height="${y-30+18}" fill="var(--ink)" fill-opacity="${selectedBand===i?.12:0}" stroke="${selectedBand===i?"var(--ink)":"none"}" stroke-width="1" rx="3" onclick="selectBand(${i})"><title>${bandLabel(i)}: ${fmtS(lo)} to ${fmtS(hi)}</title></rect>`).join("");
   }
   $("spectrum").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mean partisan score of the selected messages">
     <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="var(--dem)"/><stop offset=".5" stop-color="var(--rule)"/><stop offset="1" stop-color="var(--rep)"/></linearGradient></defs>

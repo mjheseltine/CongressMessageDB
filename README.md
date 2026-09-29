@@ -92,6 +92,11 @@ cell, overall, per category and per score band; terms found in fewer than 25 mes
 are dropped, so no output row can be traced to a message. No text is written. Members with party
 "Other" are excluded from the counts.
 
+Terms to suppress from the word lists (tokenizer noise, boilerplate) go in `stopwords.txt` at the
+repo root, one per line; the script reads it automatically. The script also applies the
+`ICPSR_ALIASES` table and the date-based party rule from `prepare_data.py`, so run it from the repo
+root after `prepare_data.py`.
+
 The site works without these files: if they are absent the word features simply don't appear.
 Knobs: `--vocab` (terms kept, default 4000), `--per-slice` (terms stored per cell and category,
 default 500; lower it to shrink the files), `--min-df`.

@@ -6,7 +6,7 @@ This is the ONLY script in the pipeline that reads message text, and it is kept 
 prepare_data.py for that reason. It writes no text. Its output is document-frequency counts of
 common terms (unigrams and bigrams): for each platform x Congress x party x chamber cell, how many
 messages contain each term, overall, within each of the six main categories, and within each of
-seven partisan-score bands. Terms seen in fewer than --min-df messages are discarded, so nothing
+five partisan-score bands. Terms seen in fewer than --min-df messages are discarded, so nothing
 in the output can be traced to an individual message.
 
 The website sums these cells for whatever platform / Congress range / party / chamber a visitor
@@ -36,9 +36,14 @@ import pandas as pd
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import CountVectorizer, ENGLISH_STOP_WORDS
 
+try:                                     # keep member IDs consistent with prepare_data.py
+    from prepare_data import ICPSR_ALIASES
+except ImportError:
+    ICPSR_ALIASES = {}
+
 CATEGORIES = ["Advertising", "CreditClaiming", "PositionTaking", "ConstituentService", "NegativePartisan", "Bipartisan"]
 ALL_CATEGORIES = CATEGORIES + ["CreditConstituent", "CreditPolicy"]   # read but only the six above get slices
-BANDS = [(-1.0, -0.75), (-0.75, -0.45), (-0.45, -0.15), (-0.15, 0.15), (0.15, 0.45), (0.45, 0.75), (0.75, 1.0)]
+BANDS = [(-1.0, -0.6), (-0.6, -0.2), (-0.2, 0.2), (0.2, 0.6), (0.6, 1.0)]   # five equal bands of the partisan score
 HIST_EDGES = np.linspace(-1, 1, 21)          # 20 bins of 0.1 for the histogram behind the spectrum
 PARTIES = ["Democrat", "Republican"]         # "Other" is excluded from word statistics
 CHAMBERS = ["House", "Senate"]
@@ -53,7 +58,7 @@ PLATFORMS = {
 
 EXTRA_STOP = {"rt", "amp", "http", "https", "co", "www", "com", "html", "don", "doesn", "didn", "isn", "aren",
               "wasn", "weren", "ll", "ve", "re", "just", "im", "th", "st", "nd", "rd", "us"}
-STOP = sorted(set(ENGLISH_STOP_WORDS) | EXTRA_STOP)
+STOP = set(ENGLISH_STOP_WORDS) | EXTRA_STOP      # extended by --stopwords at run time
 TOKEN = r"\b[a-z][a-z']*[a-z]\b"
 URL_RE = re.compile(r"https?://\S+|www\.\S+")
 MENTION_RE = re.compile(r"@\w+")
@@ -70,9 +75,38 @@ def clean(texts):
 
 
 def load_members(path):
-    m = pd.read_csv(path, usecols=["MemberICPSR", "Congress", "MemberParty", "MemberChamber"])
-    m = m[m["MemberParty"].isin(PARTIES) & m["MemberChamber"].isin(CHAMBERS)]
-    return {(int(r.MemberICPSR), int(r.Congress)): (r.MemberParty, r.MemberChamber) for r in m.itertuples()}
+    """(MemberICPSR, Congress) -> (party, chamber, switch_from, switch_to, switch_date); the last three are
+    None except for members who changed party mid-session, whose messages are assigned by date."""
+    m = pd.read_csv(path, usecols=["MemberICPSR", "Congress", "MemberParty", "MemberChamber", "PartySwitch", "PartySwitchDate"])
+    m = m[m["MemberChamber"].isin(CHAMBERS)]
+    out = {}
+    for r in m.itertuples():
+        frm = to = date = None
+        if isinstance(r.PartySwitch, str) and " to " in r.PartySwitch:
+            frm, to = r.PartySwitch.split(" to ", 1)
+            date = str(r.PartySwitchDate)
+        out[(int(r.MemberICPSR), int(r.Congress))] = (r.MemberParty, r.MemberChamber, frm, to, date)
+    return out
+
+
+def apply_aliases(ch):
+    for key, target in ICPSR_ALIASES.items():
+        icp, cong = key if isinstance(key, tuple) else (key, None)
+        m = ch["MemberICPSR"] == icp
+        if cong is not None:
+            m &= ch["Congress"] == cong
+        ch.loc[m, "MemberICPSR"] = target
+    return ch
+
+
+def party_chamber(row_key, date, members):
+    rec = members.get(row_key)
+    if rec is None:
+        return None
+    party, chamber, frm, to, sw = rec
+    if frm is not None:
+        party = frm if str(date) < sw else to
+    return (party, chamber) if party in PARTIES else None
 
 
 def chunks(path, text_col, extra_cols, chunksize):
@@ -97,7 +131,7 @@ def fit_vocabulary(path, text_col, args):
     if len(sample) > args.sample:
         sample = sample.sample(n=args.sample, random_state=0)
     log(f"  vocabulary from {len(sample):,} of {n_seen:,} messages")
-    vec = CountVectorizer(binary=True, ngram_range=(1, 2), stop_words=STOP, token_pattern=TOKEN,
+    vec = CountVectorizer(binary=True, ngram_range=(1, 2), stop_words=sorted(STOP), token_pattern=TOKEN,
                           min_df=max(2, int(args.min_df * len(sample) / max(n_seen, 1))),
                           max_features=args.vocab * 3, dtype=np.int32)
     vec.fit(clean(sample))
@@ -108,7 +142,7 @@ def fit_vocabulary(path, text_col, args):
 
 def count_platform(path, text_col, vocab, members, args):
     """Pass 2: accumulate per-cell, per-slice document frequencies."""
-    vec = CountVectorizer(vocabulary=vocab, binary=True, ngram_range=(1, 2), stop_words=STOP, token_pattern=TOKEN,
+    vec = CountVectorizer(vocabulary=vocab, binary=True, ngram_range=(1, 2), stop_words=sorted(STOP), token_pattern=TOKEN,
                           dtype=np.int32)
     V = len(vocab)
     cells = {}          # (congress, party, chamber) -> cell index
@@ -117,11 +151,12 @@ def count_platform(path, text_col, vocab, members, args):
     hist = []           # per cell: 20 bins
     skipped_other = 0
     n_rows = 0
-    extra = ["Congress", "MemberICPSR", "PartisanScore"] + CATEGORIES
+    extra = ["Congress", "MemberICPSR", "Date", "PartisanScore"] + CATEGORIES
     for ch in chunks(path, text_col, extra, args.chunk):
         ch = ch.dropna(subset=["Congress", "MemberICPSR"])
-        keys = list(zip(ch["MemberICPSR"].astype(int), ch["Congress"].astype(int)))
-        pc = [members.get(k) for k in keys]
+        ch["Congress"] = ch["Congress"].astype(int); ch["MemberICPSR"] = ch["MemberICPSR"].astype(int)
+        ch = apply_aliases(ch)
+        pc = [party_chamber(k, d, members) for k, d in zip(zip(ch["MemberICPSR"], ch["Congress"]), ch["Date"])]
         keep = np.array([p is not None for p in pc])
         skipped_other += int((~keep).sum())
         ch = ch[keep]
@@ -221,6 +256,8 @@ def main():
     ap.add_argument("--members", default="docs/members.csv", help="members.csv from prepare_data.py (party and chamber)")
     ap.add_argument("--site", default="docs")
     ap.add_argument("--text-col", default="TextOriginal")
+    ap.add_argument("--stopwords", default="stopwords.txt",
+                    help="optional text file, one term per line, of extra terms to ignore (default: stopwords.txt if present)")
     ap.add_argument("--vocab", type=int, default=4000, help="terms kept by overall frequency")
     ap.add_argument("--per-slice-vocab", type=int, default=300, help="extra terms kept per category/band by frequency")
     ap.add_argument("--per-slice", type=int, default=500, help="terms stored per cell x category/band slice")
@@ -233,6 +270,10 @@ def main():
     paths = {"twitter": args.tweets, "facebook": args.facebook, "newsletters": args.newsletters}
     if not any(paths.values()):
         raise SystemExit("give at least one of --tweets / --facebook / --newsletters")
+    if os.path.exists(args.stopwords):
+        extra = {w.strip().lower() for w in open(args.stopwords, encoding="utf-8") if w.strip() and not w.startswith("#")}
+        STOP.update(extra)
+        log(f"{len(extra)} extra stop terms from {args.stopwords}")
     members = load_members(args.members)
     log(f"{len(members):,} member-sessions with party and chamber from {args.members}")
     os.makedirs(args.site, exist_ok=True)
