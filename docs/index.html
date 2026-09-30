@@ -87,6 +87,20 @@
   .band-info b{color:var(--ink);font-weight:600}
   .band-terms{margin-top:4px}
   .spectrum .band{cursor:pointer} .spectrum .band:hover{fill-opacity:.35}
+  .term-ui{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;font-family:var(--sans);font-size:14px}
+  .term-search{position:relative;flex:1 1 320px;max-width:480px}
+  .term-search input{width:100%}
+  .term-suggest{position:absolute;left:0;right:0;top:100%;z-index:4;background:var(--bg);border:1px solid var(--rule);border-top:0;border-radius:0 0 4px 4px;box-shadow:0 6px 16px rgba(0,0,0,.08);max-height:260px;overflow-y:auto}
+  .term-suggest div{padding:7px 10px;cursor:pointer} .term-suggest div:hover,.term-suggest div.active{background:var(--panel)}
+  .term-suggest small{color:var(--muted);margin-left:8px}
+  .term-mode{display:flex;gap:14px;align-items:center;min-height:38px;color:var(--muted)}
+  .term-mode input{margin:0 5px 0 0}
+  .term-status{font-family:var(--sans);font-size:13px;color:var(--muted);margin:8px 0 6px;max-width:760px}
+  .term-status b{color:var(--ink);font-weight:600}
+  .term-chart svg{width:100%;height:auto;display:block;max-width:760px}
+  .term-chart .line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  .term-hover{font-family:var(--sans);font-size:13px;color:var(--muted);min-height:1.5em;max-width:760px}
+  #terms-section.hidden{display:none}
   .bar-row:last-child{border-bottom:0}
   .bar-label{font-size:14px;text-align:right}
   .bar-set{display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -170,9 +184,27 @@
       <div class="band-info" id="band-info"></div>
       <div class="kpis" id="kpis"></div>
 
-      <h3>Share of messages by category</h3>
+      <h3>By category</h3>
       <div class="bars" id="bars"></div>
       <div class="legend" id="legend"></div>
+
+      <div id="terms-section">
+      <h3>By word or phrase</h3>
+      <div class="term-ui">
+        <div class="term-search">
+          <input type="search" id="term-q" placeholder="Search a word or phrase, e.g. border wall" autocomplete="off" spellcheck="false">
+          <div class="term-suggest" id="term-suggest" hidden></div>
+        </div>
+        <div class="term-mode" id="term-mode">
+          <label><input type="radio" name="term-mode" value="rate" checked> per 1,000 messages</label>
+          <label><input type="radio" name="term-mode" value="count"> messages</label>
+        </div>
+      </div>
+      <p class="term-status" id="term-status">Monthly share of messages containing a word or phrase, by platform, for the current filters.</p>
+      <div class="term-chart" id="term-chart"></div>
+      <div class="term-hover" id="term-hover"></div>
+      <div class="actions"><button class="quiet" id="btn-term-csv" hidden>Download this series as CSV</button></div>
+      </div>
 
       <h3>By Congress</h3>
       <div class="tablewrap"><table id="tbl-congress"></table></div>
@@ -197,6 +229,10 @@
     <h3>Message-level files</h3>
     <p class="sub">Each row is one tweet, one Facebook post, one newsletter or one newsletter sentence, with its platform identifier, date, member ICPSR ID, Congress, engagement counts (social media only), the eight classifier labels and the two partisanship scores. Newsletters were classified sentence by sentence: the newsletter files mark a category if any sentence carries it, while the sentence files, which the member-level tables and the explorer are built from, give the per-sentence labels. Join any file to members.csv on MemberICPSR and Congress.</p>
     <div class="tablewrap"><table class="files" id="tbl-files"></table></div>
+
+    <h3>Term frequency files</h3>
+    <p class="sub">The data behind the word-or-phrase chart: for each searchable term, the number of messages containing it in each month, by party and chamber, one file per platform, plus monthly message totals for computing rates.</p>
+    <dl id="termfreq-files"></dl>
   </section>
 
   <section id="cite">
@@ -239,6 +275,7 @@
 <script id="words-data-Twitter" type="application/json"></script>
 <script id="words-data-Facebook" type="application/json"></script>
 <script id="words-data-Newsletters" type="application/json"></script>
+<script id="terms-data" type="application/json"></script>
 
 <script>
 // ===== Configuration ======================================================
@@ -417,6 +454,138 @@ function renderBandInfo(){
   el.innerHTML=`<b>${bandLabel(selectedBand)}</b> (${fmtS(lo)} to ${fmtS(hi)}) · ${fmtP(share)} of scored messages<div class="band-terms">${termsHTML(distinctive(currentAgg,k,15))}</div>`;
 }
 
+// ===== By word or phrase ==================================================
+// Monthly counts of messages containing a term, by platform x party x chamber, from prepare_keywords.py.
+// terms/index.json holds monthly totals; terms/vocab.json.gz the searchable vocabulary and the
+// normalization map; terms/<platform>/<shard>.json.gz the per-term series, sharded by FNV-1a hash.
+const PLAT_KEY={Twitter:"twitter",Facebook:"facebook",Newsletters:"newsletters"};
+let TINDEX=null, TVOCAB=null, termsState="idle", shardCache={}, currentTerm=null, termsLoad=null;
+const TERMS_INLINE=(()=>{ const el=document.getElementById("terms-data"); try{ return el&&el.textContent.trim()?JSON.parse(el.textContent):null; }catch(e){ return null; } })();
+function fnv1a(str){ let h=0x811c9dc5; for(const b of new TextEncoder().encode(str)){ h^=b; h=Math.imul(h,0x01000193)>>>0; } return h>>>0; }
+async function fetchJSONMaybeGz(url){
+  if(TERMS_INLINE){ const parts=url.split("/"); if(url==="terms/index.json") return TERMS_INLINE.index; if(url==="terms/vocab.json.gz") return TERMS_INLINE.vocab;
+    return (TERMS_INLINE.shards[parts[1]]||{})[parts[2].replace(".json.gz","")]||{}; }
+  const r=await fetch(url); if(r.status===404) return null; if(!r.ok) throw new Error(url+" "+r.status);
+  const buf=new Uint8Array(await r.arrayBuffer()); let text;
+  if(buf[0]===0x1f&&buf[1]===0x8b){ if(!("DecompressionStream" in window)) throw new Error("This browser can't decompress the term data."); text=await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"))).text(); }
+  else text=new TextDecoder().decode(buf);
+  return JSON.parse(text);
+}
+let indexLoad=null;
+function loadIndex(){
+  if(indexLoad) return indexLoad;
+  indexLoad=(async()=>{ try{ TINDEX=await fetchJSONMaybeGz("terms/index.json"); }catch(e){ TINDEX=null; }
+    if(!TINDEX){ termsState="missing"; $("terms-section").classList.add("hidden"); } })();
+  return indexLoad;
+}
+function loadTerms(){
+  if(termsLoad) return termsLoad;
+  termsLoad=(async()=>{
+    await loadIndex(); if(termsState==="missing") return;
+    try{ TVOCAB=await fetchJSONMaybeGz("terms/vocab.json.gz"); }
+    catch(e){ $("term-status").textContent="Couldn't load the term data ("+e.message+")."; termsState="error"; return; }
+    if(!TVOCAB){ termsState="missing"; $("terms-section").classList.add("hidden"); return; }
+    TVOCAB.stopSet=new Set(TVOCAB.stop); TVOCAB.byKey=new Map(TVOCAB.terms.map(([k,d])=>[k,d]));
+    termsState="ready";
+    $("term-status").textContent=`Monthly share of messages containing a word or phrase, by platform, for the current filters. ${fmtN(TVOCAB.terms.length)} terms appearing in at least ${TVOCAB.min_df} messages are searchable.`;
+  })();
+  return termsLoad;
+}
+function normalizeQuery(q){
+  const toks=(q.toLowerCase().replace(/&amp;/g,"&").replace(/#/g,"").match(/[a-z][a-z']*[a-z]/g)||[])
+    .filter(w=>!TVOCAB.stopSet.has(w)).map(w=>TVOCAB.canon[w]||w).filter(w=>!TVOCAB.stopSet.has(w));
+  return toks.join(" ");
+}
+function suggest(q){
+  const box=$("term-suggest"); const n=normalizeQuery(q); if(!n){ box.hidden=true; return; }
+  const starts=[], contains=[];
+  for(const [k,d] of TVOCAB.terms){ if(k.startsWith(n)||d.startsWith(n)) starts.push([k,d]); else if(k.includes(n)) contains.push([k,d]); if(starts.length>=8) break; }
+  const list=starts.concat(contains).slice(0,8);
+  if(!list.length){ box.hidden=true; return; }
+  box.innerHTML=list.map(([k,d])=>`<div data-key="${esc(k)}">${esc(d)}</div>`).join(""); box.hidden=false;
+}
+async function searchTerm(q){
+  await loadTerms(); if(termsState!=="ready") return;
+  const key=normalizeQuery(q); $("term-suggest").hidden=true;
+  if(!key){ currentTerm=null; renderTermChart(); return; }
+  if(!TVOCAB.byKey.has(key)){ currentTerm=null; $("term-chart").innerHTML=""; $("term-hover").textContent=""; $("btn-term-csv").hidden=true;
+    $("term-status").innerHTML=`No data for <b>${esc(q)}</b>. Only terms appearing in at least ${TVOCAB.min_df} messages are searchable; try a shorter phrase.`; return; }
+  const shard=String(fnv1a(key)%TINDEX.shards).padStart(3,"0"), data={};
+  for(const p of ["Twitter","Facebook","Newsletters"]){
+    const path=`terms/${PLAT_KEY[p]}/${shard}.json.gz`;
+    if(!(path in shardCache)){ try{ shardCache[path]=await fetchJSONMaybeGz(path)||{}; }catch(e){ shardCache[path]={}; } }
+    data[p]=shardCache[path][key]||null;
+  }
+  currentTerm={key,display:TVOCAB.byKey.get(key),data}; renderTermChart();
+}
+function termMode(){ return document.querySelector('input[name="term-mode"]:checked').value; }
+function termSeries(){
+  const s=selected(), plats=platformsNeeded(), parties=s.party?[s.party]:["Democrat","Republican"], chambers=s.chamber?[s.chamber]:["House","Senate"];
+  const NM=TINDEX.months.length, out=[];
+  for(const p of plats){
+    const vals=new Array(NM).fill(0), den=new Array(NM).fill(0), tot=TINDEX.totals[p]||{}, e=currentTerm.data[p];
+    for(const party of parties) for(const ch of chambers){ const cell=party+"|"+ch; (tot[cell]||[]).forEach((n,i)=>{ den[i]+=n; }); const c=e&&e[cell]; if(c) c[0].forEach((mi,j)=>{ vals[mi]+=c[1][j]; }); }
+    out.push({platform:p,vals,den,total:vals.reduce((a,b)=>a+b,0)});
+  }
+  return out;
+}
+function renderTermChart(){
+  const chart=$("term-chart"), hover=$("term-hover"), status=$("term-status"), btn=$("btn-term-csv");
+  if(!currentTerm||!TINDEX){ chart.innerHTML=""; hover.textContent=""; btn.hidden=true; return; }
+  const s=selected(), m0=(s.from-111)*24, m1=Math.min((s.to-111)*24+23,TINDEX.months.length-1), mode=termMode(), MIN_DEN=20;
+  const series=termSeries(); const totalAll=series.reduce((a,x)=>a+x.total,0);
+  status.innerHTML=`<b>${esc(currentTerm.display)}</b>: ${fmtN(series.reduce((a,x)=>a+x.vals.slice(m0,m1+1).reduce((u,v)=>u+v,0),0))} messages in the current selection`+(series.length>1?` (${series.map(x=>x.platform+" "+fmtN(x.vals.slice(m0,m1+1).reduce((u,v)=>u+v,0))).join(" · ")})`:"")+`.`;
+  const y=(x,i)=>mode==="rate"?(x.den[i]>=MIN_DEN?1000*x.vals[i]/x.den[i]:null):x.vals[i];
+  const pts=series.map(x=>({platform:x.platform,y:Array.from({length:m1-m0+1},(_,k)=>y(x,m0+k))}));
+  const ymax=Math.max(1e-9,...pts.flatMap(p=>p.y.filter(v=>v!=null)));
+  const W=760,H=300,L=54,R=16,T=14,B=40,w=W-L-R,h=H-T-B,n=m1-m0+1,F="IBM Plex Sans,system-ui,sans-serif";
+  const X=k=>L+(n>1?k/(n-1):0.5)*w, Y=v=>T+h-(v/ymax)*h;
+  const nice=v=>{ const p=Math.pow(10,Math.floor(Math.log10(v))); const f=v/p; return (f<=1?1:f<=2?2:f<=5?5:10)*p; };
+  const step=nice(ymax/4), yt=[]; for(let v=0;v<=ymax+1e-9;v+=step) yt.push(v);
+  const years=[]; for(let k=0;k<n;k++){ const mo=(m0+k)%12, yr=2009+Math.floor((m0+k)/12); if(mo===0) years.push([k,yr]); }
+  const every=years.length>8?2:1;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly frequency of ${esc(currentTerm.display)}">`;
+  svg+=yt.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--rule)"/><text x="${L-8}" y="${(Y(v)+4).toFixed(1)}" text-anchor="end" font-family="${F}" font-size="11" fill="var(--muted)">${mode==="rate"?(step<1?v.toFixed(1):v.toFixed(0)):fmtN(v)}</text>`).join("");
+  svg+=years.filter((_,i)=>i%every===0).map(([k,yr])=>`<line x1="${X(k).toFixed(1)}" x2="${X(k).toFixed(1)}" y1="${T+h}" y2="${T+h+5}" stroke="var(--muted)"/><text x="${X(k).toFixed(1)}" y="${T+h+20}" text-anchor="middle" font-family="${F}" font-size="11" fill="var(--muted)">${yr}</text>`).join("");
+  svg+=`<text x="${L}" y="${H-4}" font-family="${F}" font-size="11" fill="var(--muted)">${mode==="rate"?"messages containing the term, per 1,000 messages that month":"messages containing the term, per month"}</text>`;
+  for(const p of pts){ let d="",pen=false; p.y.forEach((v,k)=>{ if(v==null){ pen=false; return; } d+=(pen?"L":"M")+X(k).toFixed(1)+" "+Y(v).toFixed(1); pen=true; }); svg+=`<path class="line" d="${d}" stroke="var(--ink)" stroke-opacity=".28" stroke-width="3.5"/><path class="line" d="${d}" stroke="${PLATFORM_COLOR[p.platform]}"/>`; }
+  svg+=`<line id="term-guide" x1="0" x2="0" y1="${T}" y2="${T+h}" stroke="var(--ink)" stroke-dasharray="3 2" visibility="hidden"/>`;
+  svg+=`<rect id="term-capture" x="${L}" y="${T}" width="${w}" height="${h}" fill="transparent"/></svg>`;
+  chart.innerHTML=svg;
+  $("legend").innerHTML=$("legend").innerHTML; // unchanged; platform colours shared with the bars
+  hover.textContent=series.length>1?"Hover or tap the chart for monthly values. Colours as in the category chart above.":"Hover or tap the chart for monthly values.";
+  btn.hidden=false; btn.onclick=()=>downloadTermCSV(series,m0,m1);
+  const cap=chart.querySelector("#term-capture"), guide=chart.querySelector("#term-guide"), svgEl=chart.querySelector("svg");
+  const onMove=ev=>{ const pt=svgEl.createSVGPoint(); const e=ev.touches?ev.touches[0]:ev; pt.x=e.clientX; pt.y=e.clientY; const loc=pt.matrixTransform(svgEl.getScreenCTM().inverse());
+    const k=Math.max(0,Math.min(n-1,Math.round((loc.x-L)/w*(n-1)))); guide.setAttribute("x1",X(k)); guide.setAttribute("x2",X(k)); guide.setAttribute("visibility","visible");
+    hover.innerHTML=`<b>${TINDEX.months[m0+k]}</b> · `+series.map((x,i)=>{ const v=pts[i].y[k]; return `${x.platform}: ${v==null?"—":(mode==="rate"?v.toFixed(1)+" per 1,000":fmtN(v))} <span style="opacity:.7">(${fmtN(x.vals[m0+k])} of ${fmtN(x.den[m0+k])})</span>`; }).join(" · "); };
+  cap.addEventListener("mousemove",onMove); cap.addEventListener("touchstart",onMove,{passive:true}); cap.addEventListener("touchmove",onMove,{passive:true});
+  cap.addEventListener("mouseleave",()=>{ guide.setAttribute("visibility","hidden"); });
+}
+function downloadTermCSV(series,m0,m1){
+  const rows=[["term","month","platform","messages_with_term","messages_total","per_1000"]];
+  for(let i=m0;i<=m1;i++) for(const x of series) rows.push([currentTerm.display,TINDEX.months[i],x.platform,x.vals[i],x.den[i],x.den[i]?(1000*x.vals[i]/x.den[i]).toFixed(3):""]);
+  const csv=rows.map(r=>r.map(v=>/[",\n]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':v).join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"}), a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`sccc_term_${currentTerm.key.replace(/\s+/g,"_")}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function initTerms(){
+  const q=$("term-q"), box=$("term-suggest"); let active=-1;
+  q.addEventListener("focus",()=>{ loadTerms(); });
+  q.addEventListener("input",()=>{ active=-1; if(termsState==="ready") suggest(q.value); else loadTerms().then(()=>{ if(termsState==="ready") suggest(q.value); }); });
+  q.addEventListener("keydown",ev=>{ const items=[...box.querySelectorAll("div")];
+    if(ev.key==="ArrowDown"&&items.length){ active=Math.min(items.length-1,active+1); items.forEach((el,i)=>el.classList.toggle("active",i===active)); ev.preventDefault(); }
+    else if(ev.key==="ArrowUp"&&items.length){ active=Math.max(0,active-1); items.forEach((el,i)=>el.classList.toggle("active",i===active)); ev.preventDefault(); }
+    else if(ev.key==="Enter"){ if(active>=0&&items[active]){ q.value=items[active].textContent; } searchTerm(q.value); ev.preventDefault(); }
+    else if(ev.key==="Escape"){ box.hidden=true; } });
+  box.addEventListener("mousedown",ev=>{ const el=ev.target.closest("div[data-key]"); if(el){ q.value=el.textContent; searchTerm(q.value); ev.preventDefault(); } });
+  document.addEventListener("click",ev=>{ if(!ev.target.closest(".term-search")) box.hidden=true; });
+  document.querySelectorAll('input[name="term-mode"]').forEach(r=>r.addEventListener("change",renderTermChart));
+}
+function renderTermFiles(){
+  const files=[["termfreq_twitter.csv.gz","Twitter"],["termfreq_facebook.csv.gz","Facebook"],["termfreq_newsletters.csv.gz","Newsletters"],["termfreq_totals.csv","Monthly message totals by platform, party and chamber"]];
+  $("termfreq-files").innerHTML=files.map(([f,l])=>`<dt><a href="${DATA_BASE_URL}${f}">${f}</a></dt><dd>${l}${f.includes("totals")?"":": term, month, party, chamber, number of messages containing the term"}</dd>`).join("");
+}
+
 // ===== Rendering ==========================================================
 function renderSpectrum(rows, all){
   const D=agg(rows.filter(r=>r.MemberParty==="Democrat")), R=agg(rows.filter(r=>r.MemberParty==="Republican"));
@@ -480,6 +649,8 @@ function render(){
   $("results").style.display="";
   renderSpectrum(rows,a); renderKPIs(a); renderBars(rows); renderCongressTable(rows); renderMemberTable(rows);
   renderWords();
+  if(termsState!=="missing") $("terms-section").classList.toggle("hidden",!!selected().member);
+  if(currentTerm) renderTermChart();
 }
 function downloadFiltered(){
   const rows=filtered(); if(!rows.length) return;
@@ -510,7 +681,7 @@ function renderFiles(){
     const m=await loadText("manifest-data","manifest.json"); MANIFEST=JSON.parse(m.text);
     if(s.demo){ const t=["Twitter","Facebook","Newsletter sentences"].reduce((a,p)=>a+(MANIFEST.totals[p]||0),0);
       $("demo-note").textContent=`Demo build: the explorer below is running on a ${fmtN(t)}-message sample, not the full dataset. Download links point at placeholders.`; $("demo-note").hidden=false; }
-    initFilters(); render(); renderFiles();
+    initFilters(); initTerms(); render(); renderFiles(); renderTermFiles(); loadIndex();
   }catch(e){
     $("results").innerHTML=`<p class="empty">Couldn't load summary.csv or manifest.json (${esc(e.message)}). Run prepare_data.py so both files sit next to this page.</p>`;
   }

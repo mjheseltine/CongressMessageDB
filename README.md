@@ -18,6 +18,8 @@ docs/               GitHub Pages root
   members.csv       member-session attributes (generated)
   manifest.json     list of bulk files with sizes (generated)
   words_*.json      aggregate term counts for the explorer's word features (generated, optional)
+  terms/            monthly term-frequency data for the word-or-phrase chart (generated, optional):
+                    index.json, vocab.json.gz, and 256 shards per platform
   codebook.md       variable definitions
 release/            NOT committed (.gitignore) — attached to the GitHub Release
   data/*.csv.gz, *.parquet
@@ -85,8 +87,24 @@ python prepare_keywords.py \
 ```
 
 Run it after `prepare_data.py` (it takes party and chamber from `docs/members.csv`). It reads each
-file twice in chunks, takes 30-45 minutes in total, and writes `docs/words_twitter.json`,
-`words_facebook.json` and `words_newsletters.json` (a few MB each; commit them). Its output is
+file twice in chunks, takes about an hour in total, and writes:
+
+- `docs/words_twitter.json`, `words_facebook.json`, `words_newsletters.json` (a few MB each) for the
+  distinctive-words strips and the partisan-scale bands;
+- `docs/terms/` for the "By word or phrase" chart: `index.json` (monthly message totals by platform,
+  party and chamber), `vocab.json.gz` (the searchable vocabulary), and `twitter/`, `facebook/`,
+  `newsletters/` with 256 small compressed shards each holding the monthly counts for a slice of the
+  vocabulary. Roughly 20-30 MB in total across about 770 files; commit them all. The page fetches one
+  shard per platform per search, so a search costs about 100 KB;
+- `release/data/termfreq_twitter.csv.gz`, `termfreq_facebook.csv.gz`, `termfreq_newsletters.csv.gz`
+  (long format: term, month, party, chamber, n_messages) and `termfreq_totals.csv`. Attach these four
+  to the current Release (edit the release, drag them in); the Download section links to them under
+  `DATA_BASE_URL`.
+
+The searchable vocabulary is unigrams, bigrams and trigrams found in at least `--search-min-df`
+messages (default 50), capped at `--search-vocab` terms per platform (default 30,000). Queries typed
+on the site go through the same normalization as the data (stop words removed, plurals and
+possessives folded), so "Biden's administration" finds "biden administration". Its output is
 counts of how many messages contain each common unigram or bigram, by Congress x party x chamber
 cell, overall, per category and per score band; terms found in fewer than 25 messages (`--min-df`)
 are dropped, so no output row can be traced to a message. No text is written. Members with party

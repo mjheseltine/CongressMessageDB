@@ -102,6 +102,22 @@ To aggregate across rows, weight proportions by `n_messages` and scores by `n_sc
 - Member attributes come from the project's member-session file, which was checked against the `unitedstates/congress-legislators` reference. Messages from accounts posted before the member took office are excluded.
 - Newsletter-level category flags use an any-sentence rule, so they rise with newsletter length; sentence-level shares are in `newsletter_sentences_*`.
 
+## Term frequency files
+
+`termfreq_twitter.csv.gz`, `termfreq_facebook.csv.gz` and `termfreq_newsletters.csv.gz` hold, for every
+searchable term (unigrams, bigrams and trigrams found in at least 50 messages on that platform, up to
+30,000 terms), the number of messages containing it in each month, by party and chamber:
+
+| Variable | Description |
+|---|---|
+| `term` | The term as displayed on the site (stop words removed; plurals and possessives folded into one form). |
+| `month` | YYYY-MM, January 2009 to December 2022. |
+| `party`, `chamber` | Democrat or Republican; House or Senate. Members coded Other are excluded. |
+| `n_messages` | Messages (tweets, posts or newsletter sentences) containing the term at least once. |
+
+Rows with zero messages are omitted. `termfreq_totals.csv` gives the number of messages per platform,
+month, party and chamber, for computing rates (the site's "per 1,000 messages" view divides by it).
+
 ## Distinctive words (website only)
 
 The explorer's word lists are not part of the downloadable data. They come from `words_*.json`, which
