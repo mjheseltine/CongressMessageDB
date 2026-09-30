@@ -16,6 +16,7 @@ email
 sent
 today
 thank
+thanks
 tonight
 great
 day
@@ -27,6 +28,7 @@ week
 staff
 office
 said
+hope
 browser
 united
 joined
@@ -41,5 +43,7 @@ American
 American people
 policies
 agenda
+legislation
+law
 
 

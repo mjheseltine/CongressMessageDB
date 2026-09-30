@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#FBFBF9; --panel:#F1F2EE; --ink:#1F2430; --muted:#5F6672; --rule:#D8DBE0;
+    --bg:#FFFFFF; --panel:#F3F4F5; --ink:#1F2430; --muted:#5F6672; --rule:#D8DBE0;
     --dem:#3557A6; --rep:#A63535; --tw:#bfdbf7; --fb:#1f7a8c; --nl:#022b3a; --bar-edge:rgba(0,0,0,.28);
     --focus:#3557A6;
     --serif:"Newsreader", Georgia, "Times New Roman", serif;
@@ -83,7 +83,9 @@
   .bar-terms .t{white-space:nowrap} .bar-terms .t.top{color:var(--ink);font-weight:500}
   .bar-terms .sep{opacity:.45;margin:0 2px}
   .band-info{font-family:var(--sans);font-size:13px;color:var(--muted);max-width:600px;margin:2px 0 0;min-height:1.6em;line-height:1.55}
+  .band-info br+span,.band-info br+.t{display:inline-block;margin-top:3px}
   .band-info b{color:var(--ink);font-weight:600}
+  .band-terms{margin-top:4px}
   .spectrum .band{cursor:pointer} .spectrum .band:hover{fill-opacity:.35}
   .bar-row:last-child{border-bottom:0}
   .bar-label{font-size:14px;text-align:right}
@@ -412,7 +414,7 @@ function renderBandInfo(){
   const k=currentAgg.slices.indexOf("band"+selectedBand), [lo,hi]=currentAgg.bands[selectedBand];
   const scored=currentAgg.bands.reduce((a,_,i)=>a+currentAgg.ndocs[currentAgg.slices.indexOf("band"+i)],0);
   const share=scored?currentAgg.ndocs[k]/scored:NaN;
-  el.innerHTML=`<b>${bandLabel(selectedBand)}</b> (${fmtS(lo)} to ${fmtS(hi)}) · ${fmtP(share)} of scored messages · ${termsHTML(distinctive(currentAgg,k,15))}`;
+  el.innerHTML=`<b>${bandLabel(selectedBand)}</b> (${fmtS(lo)} to ${fmtS(hi)}) · ${fmtP(share)} of scored messages<div class="band-terms">${termsHTML(distinctive(currentAgg,k,15))}</div>`;
 }
 
 // ===== Rendering ==========================================================
