@@ -44,6 +44,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 
 import numpy as np
@@ -169,7 +170,7 @@ def normalize_name(name):
     if not isinstance(name, str) or "," not in name:
         return name
     last, rest = name.split(",", 1)
-    if not last.strip().isupper():
+    if not re.search(r"[A-Z]{3,}", last):        # SPECTER, McCAIN, DeGETTE need fixing; Van Drew, O'Rourke don't
         return name
     words = []
     for w in last.strip().split():
