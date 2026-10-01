@@ -3,8 +3,6 @@
 Scaled and Classified Congressional Communications (SCCC), public release.
 Source article: Kistner, Heseltine, Alvarez, Fitch, Lothamer and Simas (2026), *American Political Science Review*, doi:10.1017/S0003055426101841.
 
-The public files contain **no message text**. Each row carries a platform identifier so that researchers with their own API access can retrieve the underlying message.
-
 ## Files
 
 | File | Unit of observation | Notes |
@@ -39,8 +37,8 @@ Congress numbers map to years as follows: 111 = 2009–10, 112 = 2011–12, 113 
 | `ConstituentService` | 0/1 | all | Presentation of self in the district or allocation of resources to constituents (Fenno 1978). |
 | `NegativePartisan` | 0/1 | all | Attack on the policies or politicians of the opposing party (Russell 2018). |
 | `Bipartisan` | 0/1 | all | Advocates the value of bipartisan collaboration (Russell 2018). |
-| `CreditConstituent` | 0/1 | all | Subtype of credit claiming. **[Authors: add definition.]** |
-| `CreditPolicy` | 0/1 | all | Subtype of credit claiming. **[Authors: add definition.]** |
+| `CreditConstituent` | 0/1 | all | Credit claiming for funding or resources delivered to the district (aka, pork). |
+| `CreditPolicy` | 0/1 | all | Credit claiming for bills or other legislative acts. |
 | `PartisanScore` | float, −1 to 1 | all | Text Partisanship Score: 2πᵣ − 1 from a class affinity model (Perry and Benoit 2017) fit separately by Congress. −1 = most Democratic language, 0 = nonpartisan, +1 = most Republican. Missing where the model was not fit (e.g. messages dated outside the session's scaling window). |
 | `PartisanExtremity` | float, 0 to 1 | all | Absolute value of `PartisanScore`. |
 

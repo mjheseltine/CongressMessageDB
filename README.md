@@ -68,9 +68,6 @@ Party for the six mid-session switchers: `members.csv` carries the master's Part
 affiliation of the session) plus `PartySwitch` and `PartySwitchDate`; `summary.csv` and the explorer
 assign party to each message by date, so a switcher has one row per party in that session.
 
-Before publishing: fill in the two `[Authors: add definition]` placeholders in `docs/codebook.md`
-(`CreditConstituent`, `CreditPolicy`) and confirm the licence line in the site footer.
-
 ## 1b. Build the distinctive-words data (optional)
 
 The explorer shows the terms most distinctive of each category and of each band of the partisan
