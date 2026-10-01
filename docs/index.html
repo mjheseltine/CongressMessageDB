@@ -217,20 +217,22 @@
 
   <section id="download">
     <h2>Download</h2>
-	<dt><a href="codebook.md">Codebook</a></dt><dd>Variable definitions, classifier and scaling details, known l	imitations.</dd>
+	<dt><a href="codebook.md">Codebook</a></dt><dd>Dataset descriptions, variable definitions, classifier and scaling details.</dd>
     <h3>Member-level tables</h3>
     <dl>
       <dt><a href="members.csv">members.csv</a></dt><dd>One row per member and Congress: name, party, chamber, state and district, plus message counts, the share of messages in each category, and mean partisan score and extremity — pooled across platforms and separately for Twitter (Twt), Facebook (FB) and newsletters (NL). </dd>
     </dl>
 
-    <h3>Message-level files</h3>
-    <p class="sub">Each row is one tweet, one Facebook post, one newsletter or one newsletter sentence, with its platform identifier, date, member ICPSR ID, Congress, engagement counts (social media only), the eight classifier labels and the two partisanship scores. Newsletters were classified sentence by sentence: the newsletter files mark a category if any sentence carries it, while the sentence files, which the member-level tables and the explorer are built from, give the per-sentence labels.</p>
-    <div class="tablewrap"><table class="files" id="tbl-files"></table></div>
-
     <h3>Term frequency files</h3>
     <p class="sub">For each searchable term (used in minimum 50 messages), the number of messages containing it in each month, by party and chamber, one file per platform, plus monthly message totals for computing rates.</p>
     <dl id="termfreq-files"></dl>
   </section>
+
+    <h3>Message-level files</h3>
+    <p class="sub">Each row is one tweet, one Facebook post, one newsletter or one newsletter sentence, with its platform identifier, date, member ICPSR ID, Congress, engagement counts (social media only), the eight classifier labels and the two partisanship scores. Newsletters were classified sentence by sentence: the newsletter files mark a category if any sentence carries it, while the sentence files, which the member-level tables and the explorer are built from, give the per-sentence labels.</p>
+    <div class="tablewrap"><table class="files" id="tbl-files"></table></div>
+
+    
 
   <section id="cite">
     <h2>Cite</h2>
